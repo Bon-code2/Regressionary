@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Temporal Matrix</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { 'dot': ['"DotGothic16"', 'sans-serif'], 'mono': ['"Inter"', 'monospace'] }, colors: { 'n-red': '#E50914', 'n-gray': '#1A1A1A' } } }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen p-6 border-t-4 border-white max-w-5xl mx-auto w-full selection:bg-n-red selection:text-white">
+
+    <!-- Header -->
+    <nav class="flex justify-between items-center mb-12">
+        <a href="/tools" class="text-[10px] text-gray-500 hover:text-white font-mono uppercase tracking-[0.2em] transition-colors">
+            &larr; Abort Module
+        </a>
+        <div class="text-[10px] text-n-red font-mono uppercase tracking-[0.2em] animate-pulse">
+            Mode: Temporal.Forecasting
+        </div>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        <!-- Left: Control Panel (1/3 width) -->
+        <div class="lg:col-span-1 space-y-8">
+            <div class="border-l-2 border-n-red pl-6 mb-8">
+                <h2 class="font-dot text-3xl uppercase tracking-widest mb-2">Temporal.Matrix</h2>
+                <p class="text-sm text-gray-500 font-mono italic">Time-series stationarity and ARIMA predictive modeling.</p>
+            </div>
+
+            <form action="/timeseries" method="POST" class="space-y-6">
+                <div class="bg-n-gray p-6 border border-gray-800">
+                    <label class="block font-mono text-[10px] text-gray-500 mb-3 uppercase tracking-widest">Time Index Vector (X-Axis)</label>
+                    <select name="date_col" class="w-full bg-black border border-gray-700 p-3 font-mono text-xs focus:border-white outline-none">
+                        {% for col in columns %}<option value="{{ col }}">{{ col }}</option>{% endfor %}
+                    </select>
+                </div>
+
+                <div class="bg-n-gray p-6 border border-gray-800">
+                    <label class="block font-mono text-[10px] text-gray-500 mb-3 uppercase tracking-widest">Target Vector (Forecast Y)</label>
+                    <select name="target_col" class="w-full bg-black border border-gray-700 p-3 font-mono text-xs focus:border-white outline-none">
+                        {% for col in columns %}<option value="{{ col }}">{{ col }}</option>{% endfor %}
+                    </select>
+                </div>
+
+                <div class="bg-n-gray p-6 border border-gray-800">
+                    <label class="block font-mono text-[10px] text-gray-500 mb-3 uppercase tracking-widest">Forecast Horizon (Steps)</label>
+                    <input type="number" name="steps" value="10" min="1" max="100" class="w-full bg-black border border-gray-700 p-3 font-mono text-xs focus:border-white outline-none">
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-white text-black font-dot text-lg uppercase tracking-[0.2em] hover:bg-n-red hover:text-white transition-all cursor-crosshair">
+                    Initiate Forecast
+                </button>
+            </form>
+        </div>
+
+        <!-- Right: Results Panel (2/3 width) -->
+        <div class="lg:col-span-2">
+
+            {% if diagnostics %}
+            <!-- Diagnostics Box -->
+            <div class="mb-8 flex gap-6">
+                <div class="flex-1 bg-black border border-gray-800 p-6 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 {% if diagnostics.stationary %}bg-green-500{% else %}bg-n-red{% endif %}"></div>
+                    <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Dickey-Fuller P-Value</p>
+                    <p class="font-dot text-3xl {% if diagnostics.stationary %}text-green-500{% else %}text-n-red{% endif %}">{{ diagnostics.adf_p }}</p>
+                </div>
+                <div class="flex-1 bg-black border border-gray-800 p-6">
+                    <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">System Conclusion</p>
+                    <p class="font-mono text-xs leading-relaxed mt-2 text-gray-400">
+                        {% if diagnostics.stationary %}
+                            > H0 Rejected. Matrix exhibits <span class="text-white font-bold">STATIONARITY</span>. Standard inference applies.
+                        {% else %}
+                            > Failed to reject H0. Matrix exhibits a <span class="text-n-red font-bold">UNIT ROOT</span>. Differencing required for accuracy.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Plotly Embed -->
+            <div class="border border-gray-700 bg-black p-2 relative shadow-[0_0_20px_rgba(229,9,20,0.05)]">
+                <div class="absolute -top-3 left-4 bg-black text-n-red px-2 font-mono text-xs tracking-widest uppercase border border-gray-700">Future Topology Rendered <span class="animate-pulse">_</span></div>
+                <div class="w-full overflow-x-auto">
+                    {{ plot_html | safe }}
+                </div>
+            </div>
+            {% else %}
+            <!-- Standby Screen -->
+            <div class="h-full min-h-[400px] border border-gray-800 flex flex-col items-center justify-center text-gray-600 font-mono text-xs uppercase tracking-widest">
+                <p class="animate-pulse">Awaiting Temporal Parameters...</p>
+                <p class="mt-2 text-[10px] opacity-50">[ Load vectors to visualize future state ]</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</body>
+</html>

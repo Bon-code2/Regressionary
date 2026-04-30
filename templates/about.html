@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | System Manifesto</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'dot': ['"DotGothic16"', 'sans-serif'], 'mono': ['"Inter"', 'monospace'] },
+                    colors: { 'n-red': '#E50914', 'n-gray': '#1A1A1A' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen p-6 border-t-4 border-n-red max-w-4xl mx-auto w-full selection:bg-n-red selection:text-white">
+
+    <!-- Header & Return -->
+    <nav class="flex justify-between items-center mb-16">
+        <a href="/" class="text-[10px] text-gray-500 hover:text-white font-mono uppercase tracking-[0.2em] transition-colors">
+            &larr; Return to Core
+        </a>
+        <div class="text-[10px] text-n-red font-mono uppercase tracking-[0.2em] animate-pulse">
+            System.Manifesto
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="space-y-20">
+
+        <!-- Section: The Genesis -->
+        <section class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+            <h1 class="font-dot text-5xl uppercase tracking-widest mb-6">The Genesis</h1>
+            <div class="border-l-2 border-gray-800 pl-6 space-y-4 font-mono text-sm text-gray-400 leading-relaxed max-w-2xl">
+                <p>Regressionary was engineered to solve a specific academic friction point: the disconnect between raw econometric theory and modern user experience.</p>
+                <p>Traditional statistical software is incredibly powerful but often gatekept by steep learning curves and archaic interfaces. Conversely, simple online calculators provide outputs without enforcing the rigorous methodology—like OLS assumptions and hypothesis testing—required for actual economic analysis.</p>
+                <p class="text-white border-l-2 border-n-red pl-4 ml-[-26px]">This mainframe bridges that gap. It is an operating system for learning econometrics, forcing the user to validate their model before interpreting their results.</p>
+            </div>
+        </section>
+
+        <!-- Section: Architecture -->
+        <section class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <h2 class="font-dot text-3xl uppercase tracking-widest mb-8 border-b border-gray-800 pb-4">System Architecture</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Stack 1 -->
+                <div class="bg-n-gray border border-gray-800 p-6 hover:border-white transition-colors">
+                    <h3 class="font-mono text-xs text-n-red uppercase tracking-widest mb-4">Core Backend</h3>
+                    <ul class="font-mono text-sm text-gray-400 space-y-2">
+                        <li>> Python 3.x</li>
+                        <li>> Flask Framework</li>
+                        <li>> SQLAlchemy</li>
+                    </ul>
+                </div>
+
+                <!-- Stack 2 -->
+                <div class="bg-n-gray border border-gray-800 p-6 hover:border-white transition-colors">
+                    <h3 class="font-mono text-xs text-n-red uppercase tracking-widest mb-4">Math Engine</h3>
+                    <ul class="font-mono text-sm text-gray-400 space-y-2">
+                        <li>> Statsmodels</li>
+                        <li>> Pandas Matrix Mgmt</li>
+                        <li>> NumPy</li>
+                    </ul>
+                </div>
+
+                <!-- Stack 3 -->
+                <div class="bg-n-gray border border-gray-800 p-6 hover:border-white transition-colors">
+                    <h3 class="font-mono text-xs text-n-red uppercase tracking-widest mb-4">Frontend UI/UX</h3>
+                    <ul class="font-mono text-sm text-gray-400 space-y-2">
+                        <li>> HTML5 / Jinja2</li>
+                        <li>> Tailwind CSS</li>
+                        <li>> Plotly Interactive</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: The Architect -->
+        <section class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 mb-20">
+            <h2 class="font-dot text-3xl uppercase tracking-widest mb-8 border-b border-gray-800 pb-4">The Architect</h2>
+
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <div class="flex-1 space-y-4 font-mono text-sm text-gray-400 leading-relaxed border-l-2 border-gray-800 pl-6">
+                    <p>Designed and developed by an economics undergraduate and aspiring software developer. This application serves as a functional intersection of demography, financial theory, and full-stack web development.</p>
+                    <p>The UI/UX draws heavy inspiration from minimalist hardware aesthetics, focusing on high contrast, stark typography, and distraction-free data visualization.</p>
+
+                    <div class="pt-6 mt-6 border-t border-gray-900 flex gap-4">
+                        <a href="https://github.com/Bon-code2" target="_blank" class="px-6 py-3 border border-gray-600 text-white hover:border-n-red hover:text-n-red transition-all uppercase tracking-widest text-[10px] flex items-center gap-2">
+                            <span>Inspect Source Code</span>
+                            <span>&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Terminal Output Graphic -->
+                <div class="flex-1 bg-black border border-gray-800 p-6 w-full text-[10px] font-mono text-green-500 shadow-[0_0_20px_rgba(34,197,94,0.05)]">
+                    <p class="text-gray-600 mb-2">// INIT_DEVELOPER_PROFILE</p>
+                    <p>> Loading dependencies...</p>
+                    <p>> Mount: Economics_Dept</p>
+                    <p>> Focus: [Econometrics, Dev_Ops]</p>
+                    <p>> Status: COMPILING_FUTURE</p>
+                    <p class="mt-4 text-n-red animate-pulse">_</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Exclude the environment variables
+.env
+
+# Exclude the virtual environment
+venv/
+env/
+
+# Exclude the database
+*.db
+*.sqlite3
+
+# Exclude Python cache
+__pycache__/

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Data Injector</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dot': ['"DotGothic16"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: { 'n-red': '#E50914', 'n-gray': '#1A1A1A' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col p-6 selection:bg-n-red selection:text-white border-t-4 border-n-red max-w-4xl mx-auto w-full">
+
+    <a href="/tools" class="text-xs text-gray-500 hover:text-white font-mono uppercase tracking-widest transition-colors flex items-center gap-2 mb-12 mt-4">
+        <span>&larr;</span> Return to Modules
+    </a>
+
+    <header class="mb-10 border-b border-gray-800 pb-6">
+        <h1 class="font-dot text-4xl uppercase tracking-widest mb-2">Data.Injector</h1>
+        <p class="text-xs text-gray-400 font-mono">UPLOAD RAW DATASETS TO ACTIVE MEMORY</p>
+    </header>
+
+    <!-- Error Handling Console -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="bg-n-red text-white p-4 mb-8 font-mono text-xs uppercase tracking-widest border border-red-900">
+            {% for message in messages %}
+              > {{ message }}<br>
+            {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- If Upload is Successful, show the System Readout -->
+    {% if status %}
+    <div class="border border-green-500 bg-black p-8 relative mb-8">
+        <div class="absolute top-0 left-0 bg-green-500 text-black font-dot px-3 py-1 text-sm">SYSTEM MSG</div>
+        <h2 class="font-dot text-2xl text-green-500 mb-4 mt-6">> {{ status }}</h2>
+
+        <div class="grid grid-cols-2 gap-4 border-t border-gray-800 pt-4 font-mono text-sm text-gray-400 mb-6">
+            <div><span class="text-white">FILE:</span> {{ filename }}</div>
+            <div><span class="text-white">MATRIX:</span> {{ rows }} Rows x {{ cols }} Columns</div>
+        </div>
+
+        <h3 class="font-dot text-xl mb-2">Detected Variables:</h3>
+        <div class="flex flex-wrap gap-2">
+            {% for col in columns %}
+                <span class="border border-gray-600 px-3 py-1 text-xs font-mono text-gray-300">{{ col }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row gap-4">
+            <a href="/ols" class="bg-white text-black font-semibold px-6 py-3 uppercase text-xs tracking-widest hover:bg-gray-200 transition-colors text-center w-full sm:w-auto">
+                Launch OLS Engine &rarr;
+            </a>
+            <a href="/tools" class="border border-gray-600 text-white font-semibold px-6 py-3 uppercase text-xs tracking-widest hover:border-white transition-colors text-center w-full sm:w-auto">
+                Return to Modules
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- The Dropzone -->
+    <form action="/upload" method="POST" enctype="multipart/form-data" class="w-full">
+        <div class="relative group cursor-crosshair">
+            <!-- Hidden input that covers the whole box -->
+            <input type="file" name="dataset" id="file-upload" required accept=".csv, .xlsx, .xls"
+                   class="absolute inset-0 w-full h-full opacity-0 z-50 cursor-crosshair"
+                   onchange="updateFileName(this)">
+
+            <!-- Visual Dropzone Box -->
+            <div id="dropzone-ui" class="border-2 border-dashed border-gray-700 bg-n-gray hover:border-n-red transition-all p-16 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-500"></div>
+                <div class="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-gray-500"></div>
+
+                <svg class="w-12 h-12 text-gray-500 group-hover:text-n-red transition-colors mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+
+                <h2 id="file-name-display" class="font-dot text-2xl text-white mb-2 tracking-widest group-hover:text-n-red transition-colors">INITIALIZE TRANSFER</h2>
+                <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">Select or drag .CSV / .XLSX</p>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full bg-white text-black font-semibold px-8 py-4 hover:bg-gray-200 transition-colors uppercase text-sm tracking-wider mt-6 rounded-none border border-white">
+            Execute Upload
+        </button>
+    </form>
+
+    <!-- Small script to change the text when a file is selected -->
+    <script>
+        function updateFileName(input) {
+            const display = document.getElementById('file-name-display');
+            const dropzone = document.getElementById('dropzone-ui');
+            if (input.files && input.files.length > 0) {
+                display.innerText = input.files[0].name;
+                display.classList.add('text-n-red');
+                dropzone.classList.add('border-n-red', 'bg-black');
+            }
+        }
+    </script>
+</body>
+</html>

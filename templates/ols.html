@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | OLS Engine</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dot': ['"DotGothic16"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: { 'n-red': '#E50914', 'n-gray': '#1A1A1A' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col p-6 selection:bg-n-red selection:text-white border-t-4 border-n-red max-w-4xl mx-auto w-full">
+
+    <!-- Return Navigation -->
+    <a href="/tools" class="text-xs text-gray-500 hover:text-white font-mono uppercase tracking-widest transition-colors flex items-center gap-2 mb-12 mt-4">
+        <span>&larr;</span> Return to Modules
+    </a>
+
+    <header class="mb-10 border-b border-gray-800 pb-6">
+        <h1 class="font-dot text-4xl uppercase tracking-widest mb-2">OLS.Engine</h1>
+        <p class="text-xs text-gray-400 font-mono">CONFIGURE REGRESSION PARAMETERS</p>
+    </header>
+
+    <!-- Error Handling Console -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="bg-n-red text-white p-4 mb-8 font-mono text-xs uppercase tracking-widest border border-red-900">
+            {% for message in messages %}
+              > {{ message }}<br>
+            {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Check if Data exists in Memory -->
+    {% set columns = session.get('active_columns', []) %}
+
+    {% if not columns %}
+        <!-- Failsafe if they bypass the Data.Injector -->
+        <div class="border border-red-900 bg-black p-8 relative mb-8">
+            <div class="absolute top-0 left-0 bg-red-900 text-white font-dot px-3 py-1 text-sm">SYSTEM ERROR</div>
+            <h2 class="font-dot text-2xl text-n-red mb-4 mt-6">> NO DATA DETECTED IN ACTIVE MEMORY</h2>
+            <p class="text-sm font-mono text-gray-400 mb-6">You must initialize a dataset before running calculations.</p>
+            <a href="/upload" class="border border-white px-6 py-2 text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-colors font-mono">Go to Data.Injector</a>
+        </div>
+    {% else %}
+
+        <!-- The Configuration Console -->
+        <form action="/ols" method="POST" class="space-y-8">
+
+            <!-- Dependent Variable Selection -->
+            <div class="border border-gray-800 bg-n-gray p-6 relative">
+                <div class="absolute top-0 right-0 bg-black border-b border-l border-gray-800 text-gray-500 font-mono px-2 py-1 text-[10px]">TARGET [Y]</div>
+                <label for="y_var" class="font-dot text-xl text-white block mb-4">Select Dependent Variable (Y)</label>
+
+                <select name="y_var" id="y_var" required class="w-full bg-black border border-gray-600 text-white px-4 py-3 focus:outline-none focus:border-n-red transition-colors font-mono text-sm cursor-pointer appearance-none">
+                    <option value="" disabled selected>-- SELECT TARGET VARIABLE --</option>
+                    {% for col in columns %}
+                        <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Independent Variables Selection -->
+            <div class="border border-gray-800 bg-n-gray p-6 relative">
+                <div class="absolute top-0 right-0 bg-black border-b border-l border-gray-800 text-gray-500 font-mono px-2 py-1 text-[10px]">PREDICTORS [X]</div>
+                <label class="font-dot text-xl text-white block mb-4">Select Independent Variables (X)</label>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {% for col in columns %}
+                        <label class="flex items-center space-x-3 p-3 border border-gray-700 bg-black hover:border-n-red cursor-pointer transition-colors group">
+                            <!-- Custom styling to make standard checkboxes fit the theme -->
+                            <input type="checkbox" name="x_vars" value="{{ col }}" class="w-4 h-4 accent-n-red bg-black border-gray-600 focus:ring-n-red focus:ring-1">
+                            <span class="font-mono text-xs text-gray-300 group-hover:text-white truncate">{{ col }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Execution Button -->
+            <button type="submit" class="w-full bg-white text-black font-semibold px-8 py-4 hover:bg-gray-200 transition-colors uppercase text-sm tracking-wider mt-6 border border-white">
+                Execute Calculation
+            </button>
+        </form>
+
+    {% endif %}
+
+    <!-- System Readout: Math Output -->
+    {% if results %}
+    <div id="results-panel" class="mt-12 border border-n-red bg-black p-8 relative shadow-[0_0_15px_rgba(229,9,20,0.2)]">
+        <div class="absolute top-0 left-0 bg-n-red text-white font-dot px-3 py-1 text-sm uppercase tracking-widest">Execution Complete</div>
+
+        <h2 class="font-dot text-2xl text-white mb-6 mt-6 border-b border-gray-800 pb-2">OLS.Diagnostics</h2>
+
+        <!-- Top Level Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 font-mono text-sm">
+            <div class="border border-gray-800 p-3 bg-n-gray">
+                <span class="text-gray-500 block text-[10px] mb-1">R-SQUARED</span>
+                <span class="text-white">{{ results.r_squared }}</span>
+            </div>
+            <div class="border border-gray-800 p-3 bg-n-gray">
+                <span class="text-gray-500 block text-[10px] mb-1">ADJ R-SQUARED</span>
+                <span class="text-white">{{ results.adj_r_squared }}</span>
+            </div>
+            <div class="border border-gray-800 p-3 bg-n-gray">
+                <span class="text-gray-500 block text-[10px] mb-1">OBSERVATIONS</span>
+                <span class="text-white">{{ results.observations }}</span>
+            </div>
+            <div class="border border-gray-800 p-3 bg-n-gray">
+                <span class="text-gray-500 block text-[10px] mb-1">PROB (F-STAT)</span>
+                <span class="{% if results.f_stat_p < 0.05 %}text-green-500{% else %}text-red-500{% endif %}">
+                    {{ results.f_stat_p }}
+                </span>
+            </div>
+        </div>
+
+        <!-- The Equation Construction -->
+        <div class="mb-8 p-4 border border-gray-700 bg-black font-mono text-sm overflow-x-auto whitespace-nowrap">
+            <span class="text-gray-500 block text-[10px] mb-2 uppercase">Derived Equation</span>
+            <span class="text-n-red">{{ results.dependent }}</span> =
+            {% for var, coef in results.coefficients.items() %}
+                {% if loop.first %}
+                    <span class="text-white">{{ coef }}</span>
+                {% else %}
+                    <span class="text-gray-400"> {% if coef >= 0 %}+{% else %}-{% endif %} {{ coef|abs }}</span> <span class="text-white">({{ var }})</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- The Coefficient Matrix -->
+        <h3 class="font-dot text-lg text-gray-400 mb-3">Coefficient Matrix</h3>
+        <div class="w-full overflow-x-auto">
+            <table class="w-full text-left font-mono text-sm border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-800 text-gray-500 text-xs tracking-widest">
+                        <th class="py-3 px-2 font-normal">VARIABLE</th>
+                        <th class="py-3 px-2 font-normal">COEF</th>
+                        <th class="py-3 px-2 font-normal">STD ERR</th>
+                        <th class="py-3 px-2 font-normal">P>|t|</th>
+                        <th class="py-3 px-2 font-normal">SIG</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300">
+                    {% for var, coef in results.coefficients.items() %}
+                    <tr class="border-b border-gray-900 hover:bg-n-gray transition-colors">
+                        <td class="py-3 px-2 text-white">{{ var }}</td>
+                        <td class="py-3 px-2">{{ coef }}</td>
+                        <td class="py-3 px-2">{{ results.std_errors[var] }}</td>
+                        <td class="py-3 px-2">{{ results.p_values[var] }}</td>
+                        <td class="py-3 px-2">
+                            <!-- Significance logic -->
+                            {% if results.p_values[var] < 0.01 %}
+                                <span class="text-green-500">***</span>
+                            {% elif results.p_values[var] < 0.05 %}
+                                <span class="text-green-400">**</span>
+                            {% elif results.p_values[var] < 0.10 %}
+                                <span class="text-yellow-500">*</span>
+                            {% else %}
+                                <span class="text-gray-600">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-2 text-[10px] text-gray-600 font-mono tracking-widest">*** p<0.01, ** p<0.05, * p<0.1</div>
+
+        <!-- Auto-scroll to results logic -->
+        <script>
+            document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+        </script>
+    </div>
+    {% endif %}
+
+</body>
+</html>

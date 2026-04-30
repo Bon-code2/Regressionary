@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Study Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'dot': ['"DotGothic16"', 'sans-serif'], 'mono': ['"Inter"', 'monospace'] },
+                    colors: { 'n-red': '#E50914', 'n-gray': '#1A1A1A' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen p-6 border-t-4 border-white max-w-5xl mx-auto w-full">
+
+    <!-- System Notification Module (Toasts) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-4">
+            {% for category, message in messages %}
+                <div class="system-toast translate-x-[120%] transition-transform duration-300 ease-out border bg-black p-4 w-80 shadow-2xl relative flex flex-col {% if category == 'error' %}border-n-red text-white{% else %}border-green-500 text-white{% endif %}">
+                    <div class="absolute top-0 right-0 w-2 h-2 border-t border-r {% if category == 'error' %}border-n-red{% else %}border-green-500{% endif %}"></div>
+                    <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l {% if category == 'error' %}border-n-red{% else %}border-green-500{% endif %}"></div>
+                    <div class="flex justify-between items-start mb-2 border-b border-gray-800 pb-2">
+                        <span class="text-[10px] font-mono tracking-widest uppercase {% if category == 'error' %}text-n-red{% else %}text-green-500{% endif %}">
+                            {% if category == 'error' %}SYS.ERR{% else %}SYS.MSG{% endif %}
+                        </span>
+                        <button onclick="this.closest('.system-toast').remove()" class="text-gray-500 hover:text-white transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <div class="font-mono text-sm leading-relaxed">{{ message }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(() => { document.querySelectorAll('.system-toast').forEach(t => { t.classList.remove('translate-x-[120%]'); t.classList.add('translate-x-0'); }); }, 100);
+            setTimeout(() => { document.querySelectorAll('.system-toast').forEach(t => { t.classList.remove('translate-x-0'); t.classList.add('translate-x-[120%]'); setTimeout(() => t.remove(), 300); }); }, 5000);
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Header & Return -->
+    <nav class="flex justify-between items-center mb-12">
+        <a href="/tools" class="text-[10px] text-gray-500 hover:text-white font-mono uppercase tracking-[0.2em] transition-colors">
+            &larr; Exit Protocol
+        </a>
+        <div class="text-[10px] text-n-red font-mono uppercase tracking-[0.2em] animate-pulse">
+            Mode: Theoretical.Study
+        </div>
+    </nav>
+
+    <!-- The Curriculum Stepper -->
+    <div class="w-full bg-n-gray border border-gray-800 h-14 flex mb-16 font-mono text-[10px] uppercase tracking-widest overflow-hidden">
+        <div class="flex-1 flex items-center justify-center border-r border-gray-800 {% if stage == 1 %}bg-white text-black{% else %}text-gray-500{% endif %} transition-colors">
+            <span class="md:hidden">01</span>
+            <span class="hidden md:inline">01. Specification</span>
+        </div>
+        <div class="flex-1 flex items-center justify-center border-r border-gray-800 {% if stage == 2 %}bg-white text-black{% else %}text-gray-500{% endif %} transition-colors">
+            <span class="md:hidden">02</span>
+            <span class="hidden md:inline">02. Diagnostics</span>
+        </div>
+        <div class="flex-1 flex items-center justify-center border-r border-gray-800 {% if stage == 3 %}bg-white text-black{% else %}text-gray-500{% endif %} transition-colors">
+            <span class="md:hidden">03</span>
+            <span class="hidden md:inline">03. Inference</span>
+        </div>
+        <div class="flex-1 flex items-center justify-center {% if stage == 4 %}bg-white text-black{% else %}text-gray-500{% endif %} transition-colors">
+            <span class="md:hidden">04</span>
+            <span class="hidden md:inline">04. Evaluation</span>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        <!-- Left: Interaction Panel (2/3 width) -->
+        <div class="lg:col-span-2 space-y-12">
+
+            {% if stage == 1 %}
+            <section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="border-l-2 border-n-red pl-6 mb-10">
+                    <h2 class="font-dot text-3xl uppercase tracking-widest mb-2">Stage 01: The Model</h2>
+                    <p class="text-sm text-gray-500 font-mono italic">"The first rule of econometrics is to never trust a model you haven't built yourself."</p>
+                </div>
+
+                <form action="/protocol_step_1" method="POST" class="space-y-8">
+                    <div class="bg-n-gray p-8 border border-gray-800 relative">
+                        <label class="block font-mono text-[10px] text-gray-500 mb-4 uppercase tracking-widest">Select Target Vector (Y)</label>
+                        <select name="y_var" class="w-full bg-black border border-gray-700 p-4 font-mono text-sm focus:border-white outline-none">
+                            {% for col in columns %}<option>{{ col }}</option>{% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="bg-n-gray p-8 border border-gray-800 relative">
+                        <label class="block font-mono text-[10px] text-gray-500 mb-4 uppercase tracking-widest">Select Predictor Vectors (X)</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            {% for col in columns %}
+                            <label class="flex items-center gap-3 p-3 border border-gray-800 hover:border-white transition-colors cursor-pointer">
+                                <input type="checkbox" name="x_vars" value="{{ col }}" class="accent-n-red">
+                                <span class="font-mono text-xs truncate">{{ col }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button class="w-full py-5 bg-white text-black font-dot text-xl uppercase tracking-[0.3em] hover:bg-n-red hover:text-white transition-all">
+                        Initialize Equation
+                    </button>
+                </form>
+            </section>
+            {% endif %}
+
+            <!-- --- STAGE 02: DIAGNOSTICS --- -->
+            {% if stage == 2 %}
+            <section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="border-l-2 border-n-red pl-6 mb-10">
+                    <h2 class="font-dot text-3xl uppercase tracking-widest mb-2">Stage 02: System Diagnostics</h2>
+                    <p class="text-sm text-gray-500 font-mono italic">Testing Classical Linear Regression Model assumptions.</p>
+                </div>
+
+                <div class="space-y-6 mb-10">
+                    <!-- Heteroskedasticity Result -->
+                    <div class="bg-black border border-gray-800 p-6 flex justify-between items-center relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 {% if diagnostics.hetero.status == 'NOMINAL' %}bg-green-500{% else %}bg-n-red{% endif %}"></div>
+                        <div>
+                            <h3 class="font-mono text-sm text-gray-400 uppercase tracking-widest mb-1">Variance Homogeneity</h3>
+                            <p class="font-dot text-xl text-white">Breusch-Pagan Test</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-mono text-xs text-gray-500 mb-1">P-VALUE: {{ diagnostics.hetero.p }}</p>
+                            <p class="font-mono text-sm font-bold {% if diagnostics.hetero.status == 'NOMINAL' %}text-green-500{% else %}text-n-red{% endif %}">
+                                [{{ diagnostics.hetero.status }}]
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Autocorrelation Result (Breusch-Godfrey) -->
+                    <div class="bg-black border border-gray-800 p-6 flex justify-between items-center relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 {% if diagnostics.auto_bg.status == 'NOMINAL' %}bg-green-500{% else %}bg-n-red{% endif %}"></div>
+                        <div>
+                            <h3 class="font-mono text-sm text-gray-400 uppercase tracking-widest mb-1">Serial Independence</h3>
+                            <p class="font-dot text-xl text-white">Breusch-Godfrey Test</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-mono text-xs text-gray-500 mb-1">P-VALUE: {{ diagnostics.auto_bg.p }}</p>
+                            <p class="font-mono text-sm font-bold {% if diagnostics.auto_bg.status == 'NOMINAL' %}text-green-500{% else %}text-n-red{% endif %}">
+                                [{{ diagnostics.auto_bg.status }}]
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Autocorrelation Result (Durbin-Watson) -->
+                    <div class="bg-black border border-gray-800 p-6 flex justify-between items-center relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 {% if diagnostics.auto_dw.status == 'NOMINAL' %}bg-green-500{% else %}bg-n-red{% endif %}"></div>
+                        <div>
+                            <h3 class="font-mono text-sm text-gray-400 uppercase tracking-widest mb-1">1st Order Autocorrelation</h3>
+                            <p class="font-dot text-xl text-white">Durbin-Watson Stat</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-mono text-xs text-gray-500 mb-1">STATISTIC: {{ diagnostics.auto_dw.stat }}</p>
+                            <p class="font-mono text-sm font-bold {% if diagnostics.auto_dw.status == 'NOMINAL' %}text-green-500{% else %}text-n-red{% endif %}">
+                                [{{ diagnostics.auto_dw.status }}]
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form to advance to Stage 3 -->
+                <form action="/protocol_step_2" method="POST">
+                    <button class="w-full py-5 border border-white bg-transparent text-white font-dot text-xl uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all cursor-crosshair">
+                        Acknowledge Diagnostics & Proceed
+                    </button>
+                </form>
+            </section>
+            {% endif %}
+
+            <!-- --- STAGE 03: INFERENCE --- -->
+            {% if stage == 3 %}
+            <section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="border-l-2 border-n-red pl-6 mb-10">
+                    <h2 class="font-dot text-3xl uppercase tracking-widest mb-2">Stage 03: Statistical Inference</h2>
+                    <p class="text-sm text-gray-500 font-mono italic">Evaluating hypothesis tests for individual parameters.</p>
+                </div>
+
+                <!-- The Inference Table -->
+                <div class="bg-black border border-gray-800 overflow-x-auto mb-10">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-n-gray border-b border-gray-700 font-mono text-[10px] uppercase tracking-widest text-gray-500">
+                                <th class="p-4 border-r border-gray-800">Vector / Variable</th>
+                                <th class="p-4 border-r border-gray-800">Coefficient</th>
+                                <th class="p-4 border-r border-gray-800">Std Error</th>
+                                <th class="p-4 border-r border-gray-800">T-Statistic</th>
+                                <th class="p-4 text-right">P-Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-mono text-sm">
+                            {% for row in results %}
+                            <tr class="border-b border-gray-900 hover:bg-gray-900 transition-colors {% if row.is_significant %}text-white{% else %}text-gray-500{% endif %}">
+                                <td class="p-4 border-r border-gray-800 {% if row.is_significant %}font-bold text-n-red{% endif %}">
+                                    {{ row.variable }}
+                                </td>
+                                <td class="p-4 border-r border-gray-800">{{ row.coef }}</td>
+                                <td class="p-4 border-r border-gray-800">{{ row.std_err }}</td>
+                                <td class="p-4 border-r border-gray-800">{{ row.t_stat }}</td>
+                                <td class="p-4 text-right">
+                                    {{ row.p_value }} <span class="text-n-red ml-1 w-6 inline-block text-left">{{ row.stars }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="p-3 bg-n-gray border-t border-gray-800 text-[10px] font-mono text-gray-500 uppercase tracking-widest text-right">
+                        Significance Levels: *** 1% | ** 5% | * 10%
+                    </div>
+                </div>
+
+                <!-- Form to advance to Stage 4 -->
+                <form action="/protocol_step_3" method="POST">
+                    <button class="w-full py-5 border border-white bg-transparent text-white font-dot text-xl uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all cursor-crosshair">
+                        Evaluate Overall Fit
+                    </button>
+                </form>
+            </section>
+            {% endif %}
+
+            <!-- --- STAGE 04: EVALUATION --- -->
+            {% if stage == 4 %}
+            <section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="border-l-2 border-n-red pl-6 mb-10">
+                    <h2 class="font-dot text-3xl uppercase tracking-widest mb-2">Stage 04: Model Evaluation</h2>
+                    <p class="text-sm text-gray-500 font-mono italic">Assessing overall explanatory power and visual topology.</p>
+                </div>
+
+                <!-- Goodness of Fit Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-n-gray border border-gray-800 p-4 text-center hover:border-white transition-colors">
+                        <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">R-Squared</p>
+                        <p class="font-dot text-2xl text-white">{{ fit_metrics.r_squared }}</p>
+                    </div>
+                    <div class="bg-n-gray border border-gray-800 p-4 text-center hover:border-white transition-colors">
+                        <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Adj R-Squared</p>
+                        <p class="font-dot text-2xl text-white">{{ fit_metrics.adj_r_squared }}</p>
+                    </div>
+                    <div class="bg-n-gray border border-gray-800 p-4 text-center hover:border-white transition-colors">
+                        <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">F-Statistic</p>
+                        <p class="font-dot text-2xl text-white">{{ fit_metrics.f_stat }}</p>
+                    </div>
+                    <div class="bg-n-gray border border-gray-800 p-4 text-center hover:border-n-red transition-colors">
+                        <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Prob (F-Stat)</p>
+                        <p class="font-dot text-2xl {% if fit_metrics.f_pvalue < 0.05 %}text-green-500{% else %}text-n-red{% endif %}">
+                            {{ fit_metrics.f_pvalue }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- The Visual Matrix Embed -->
+                <div class="border border-gray-700 bg-black p-2 relative shadow-[0_0_20px_rgba(34,197,94,0.05)] mb-10">
+                    <div class="absolute -top-3 left-4 bg-black text-green-500 px-2 font-mono text-xs tracking-widest uppercase border border-gray-700">Topology Rendered <span class="animate-pulse">_</span></div>
+                    <div class="w-full overflow-x-auto">
+                        {{ plot_html | safe }}
+                    </div>
+                </div>
+
+                <!-- Reset Protocol -->
+                <form action="/protocol_reset" method="POST">
+                    <button class="w-full py-4 border border-n-red bg-n-red/10 text-n-red font-dot text-xl uppercase tracking-[0.3em] hover:bg-n-red hover:text-white transition-all cursor-crosshair">
+                        Terminate Protocol & Return
+                    </button>
+                </form>
+            </section>
+            {% endif %}
+        </div>
+
+        <!-- Right: Theory Sidebar (1/3 width) -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-12 bg-n-gray border border-gray-800 p-6 space-y-6">
+                <h3 class="font-dot text-lg uppercase text-white border-b border-gray-700 pb-2">Theory.Log</h3>
+
+                {% if stage == 1 %}
+                <div class="space-y-4 animate-in fade-in">
+                    <div class="text-[11px] font-mono leading-relaxed">
+                        <span class="text-n-red font-bold">Concept:</span> Functional Form Selection.
+                        <p class="text-gray-400 mt-2">Before testing, we must define the linear relationship. OLS assumes that the relationship between X and Y is linear in parameters.</p>
+                    </div>
+                    <div class="bg-black p-4 border border-gray-700 text-[10px] font-mono text-green-500">
+                        > H0: No relationship exists.<br>
+                        > HA: A linear relationship exists.
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if stage == 2 %}
+                <div class="space-y-4 animate-in fade-in">
+                    <div class="text-[11px] font-mono leading-relaxed">
+                        <span class="text-n-red font-bold">Concept:</span> Diagnostic Health.
+                        <p class="text-gray-400 mt-2">We analyze the residuals (errors) of the model. If errors are correlated or variance is not constant, standard errors are invalid.</p>
+                    </div>
+                    <div class="bg-black p-4 border border-gray-700 text-[10px] font-mono text-gray-400 space-y-2">
+                        <p><strong class="text-green-500">Breusch-Pagan:</strong> Tests for constant variance. <br>> H0: Homoskedasticity.</p>
+                        <p><strong class="text-green-500">Breusch-Godfrey:</strong> Tests for serial correlation. <br>> H0: No autocorrelation.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if stage == 3 %}
+                <div class="space-y-4 animate-in fade-in">
+                    <div class="text-[11px] font-mono leading-relaxed">
+                        <span class="text-n-red font-bold">Concept:</span> Statistical Significance.
+                        <p class="text-gray-400 mt-2">We use T-tests to determine if individual variables have a meaningful impact on the target.</p>
+                    </div>
+                    <div class="bg-black p-4 border border-gray-700 text-[10px] font-mono text-gray-400 space-y-2">
+                        <p>> H0: Coefficient = 0 (No effect)</p>
+                        <p>> HA: Coefficient ≠ 0 (Real effect)</p>
+                        <p class="text-n-red mt-2 pt-2 border-t border-gray-800">If P-Value < 0.05, we reject H0. The variable is statistically significant.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if stage == 4 %}
+                <div class="space-y-4 animate-in fade-in">
+                    <div class="text-[11px] font-mono leading-relaxed">
+                        <span class="text-n-red font-bold">Concept:</span> Goodness of Fit.
+                        <p class="text-gray-400 mt-2">How much of the variance in our target vector is actually explained by our predictors?</p>
+                    </div>
+                    <div class="bg-black p-4 border border-gray-700 text-[10px] font-mono text-gray-400 space-y-2">
+                        <p><strong class="text-white">R-Squared:</strong> % of explained variance. Higher is better, but it always increases with more variables.</p>
+                        <p><strong class="text-white">Adjusted R-Squared:</strong> Penalizes you for adding useless variables. The true measure of fit.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+
+                <div class="pt-4 border-t border-gray-800">
+                    <p class="text-[9px] text-gray-600 font-mono leading-tight uppercase">Current focus: Classical Linear Regression Model (CLRM) Assumptions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

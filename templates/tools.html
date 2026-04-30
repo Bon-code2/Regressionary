@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white sm:smooth-scroll">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Modules</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dot': ['"DotGothic16"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        'n-red': '#E50914',
+                        'n-gray': '#1A1A1A'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col selection:bg-n-red selection:text-white border-t-4 border-n-red">
+
+    <!-- Smart Header -->
+    <nav id="smart-header" class="w-full border-b border-gray-800 p-6 fixed top-0 left-0 z-50 bg-black transition-transform duration-300">
+        <div class="flex justify-between items-center">
+            <a href="/" class="font-dot text-2xl tracking-widest uppercase hover:text-n-red transition-colors">Regressionary</a>
+
+            <div class="space-x-4 hidden md:block text-sm text-gray-400 font-mono">
+                <!-- Using Jinja to display the logged-in username -->
+                <span class="text-white border border-gray-700 px-3 py-1 rounded-full text-xs">ID: {{ session['username'] }}</span>
+                <a href="/logout" class="hover:text-n-red transition-colors ml-4">System.Logout</a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none focus:text-n-red transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black border-b border-t border-gray-900 flex flex-col">
+            <div class="p-4 text-xs font-mono text-white border-b border-gray-900 bg-n-gray">ACTIVE ID: {{ session['username'] }}</div>
+            <a href="/logout" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <main class="flex-grow flex flex-col p-8 mt-24 max-w-6xl mx-auto w-full">
+
+        <!-- Terminal Welcome Sequence -->
+        <div class="mb-6 border-l-2 border-n-red pl-4">
+            <span class="font-dot text-lg md:text-xl text-n-red tracking-widest uppercase">
+                > SYSTEM ACCESS GRANTED, {{ session['username'] }} <span class="animate-pulse">_</span>
+            </span>
+        </div>
+
+        <header class="mb-12 border-b border-gray-800 pb-6">
+            <h1 class="font-dot text-4xl md:text-5xl uppercase tracking-widest mb-2">Available Modules</h1>
+            <p class="text-xs text-gray-400 font-mono">SELECT A PROTOCOL TO INITIALIZE YOUR DATA</p>
+            <p class="text-xs text-gray-400 font-mono">CRITICAL: UPLOAD DATA BEFORE SELECTING A MODULE </p>
+        </header>
+
+        <!-- Module Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Module 01: OLS Engine (Flash Mode) -->
+                <a href="/ols" class="group border border-gray-800 bg-black p-8 hover:border-n-red transition-all cursor-crosshair relative overflow-hidden shadow-[0_0_0_rgba(229,9,20,0)] hover:shadow-[0_0_20px_rgba(229,9,20,0.1)]">
+                    <div class="absolute top-0 right-0 w-8 h-8 bg-n-gray group-hover:bg-n-red transition-colors flex items-center justify-center text-xs font-mono text-gray-500 group-hover:text-white">01</div>
+                    <h2 class="font-dot text-2xl mb-3 text-white group-hover:text-n-red transition-colors">OLS.Engine</h2>
+                    <p class="text-sm text-gray-500 mb-6 line-clamp-2">High-speed Ordinary Least Squares matrix. Raw mathematical outputs without pedagogical constraints.</p>
+                    <div class="text-xs font-mono text-gray-600 uppercase tracking-widest border-t border-gray-900 pt-4 group-hover:text-n-red transition-colors flex justify-between">
+                        <span>Flash Mode</span>
+                        <span class="animate-pulse">Initialize &rarr;</span>
+                    </div>
+                </a>
+
+                <!-- Module 02: Study Protocol (Theory Mode) -->
+                <a href="/protocol" class="group border border-gray-800 bg-black p-8 hover:border-n-red transition-all cursor-crosshair relative overflow-hidden shadow-[0_0_0_rgba(229,9,20,0)] hover:shadow-[0_0_20px_rgba(229,9,20,0.1)]">
+                    <div class="absolute top-0 right-0 w-8 h-8 bg-n-gray group-hover:bg-n-red transition-colors flex items-center justify-center text-xs font-mono text-gray-500 group-hover:text-white">02</div>
+                    <h2 class="font-dot text-2xl mb-3 text-white group-hover:text-n-red transition-colors">Study.Protocol</h2>
+                    <p class="text-sm text-gray-500 mb-6 line-clamp-2">A rigorous, multi-stage learning environment. Step-by-step specification, automated diagnostics, and formal inference.</p>
+                    <div class="text-xs font-mono text-gray-600 uppercase tracking-widest border-t border-gray-900 pt-4 group-hover:text-n-red transition-colors flex justify-between">
+                        <span>Theoretical Mode</span>
+                        <span class="animate-pulse">Engage &rarr;</span>
+                    </div>
+                </a>
+
+                <!-- Module 03: Visual Matrix -->
+                <a href="/visual" class="group border border-gray-800 bg-black p-8 hover:border-n-red transition-all cursor-crosshair relative overflow-hidden shadow-[0_0_0_rgba(229,9,20,0)] hover:shadow-[0_0_20px_rgba(229,9,20,0.1)]">
+                    <div class="absolute top-0 right-0 w-8 h-8 bg-n-gray group-hover:bg-n-red transition-colors flex items-center justify-center text-xs font-mono text-gray-500 group-hover:text-white">03</div>
+                    <h2 class="font-dot text-2xl mb-3 text-white group-hover:text-n-red transition-colors">Visual.Matrix</h2>
+                    <p class="text-sm text-gray-500 mb-6 line-clamp-2">Interactive 2D topological rendering. Plot targets against predictors with automated Nothing-Red trendlines.</p>
+                    <div class="text-xs font-mono text-gray-600 uppercase tracking-widest border-t border-gray-900 pt-4 group-hover:text-n-red transition-colors flex justify-between">
+                        <span>Render Graphics</span>
+                        <span class="animate-pulse">Initialize &rarr;</span>
+                    </div>
+                </a>
+
+                <!-- Module 04: Data Vault -->
+                <div class="group border border-gray-800 bg-black p-8 hover:border-n-red transition-all cursor-crosshair relative overflow-hidden shadow-[0_0_0_rgba(229,9,20,0)] hover:shadow-[0_0_20px_rgba(229,9,20,0.1)]">
+                    <div class="absolute top-0 right-0 w-8 h-8 bg-n-gray group-hover:bg-n-red transition-colors flex items-center justify-center text-xs font-mono text-gray-500 group-hover:text-white">04</div>
+                    <a href="/vault" class="font-dot text-2xl mb-3 text-white group-hover:text-n-red transition-colors block">Data.Vault</a>
+                    <p class="text-sm text-gray-500 mb-4 line-clamp-2">Load pre-configured demo datasets into active memory instantly.</p>
+
+                    <!-- Vault File Selector -->
+                    <div class="flex flex-col space-y-2 mt-4 border-t border-gray-800 pt-4">
+                        <a href="/load_vault/demographics.csv" class="group/btn flex justify-between items-center text-xs font-mono text-gray-400 hover:text-white hover:bg-gray-900 border border-gray-800 p-3 uppercase tracking-widest transition-colors cursor-crosshair">
+                            <span>> demographics.csv</span>
+                            <span class="text-gray-600 group-hover/btn:text-n-red transition-colors">LOAD</span>
+                        </a>
+                        <a href="/load_vault/ipl_stats.csv" class="group/btn flex justify-between items-center text-xs font-mono text-gray-400 hover:text-white hover:bg-gray-900 border border-gray-800 p-3 uppercase tracking-widest transition-colors cursor-crosshair">
+                            <span>> ipl_stats.csv</span>
+                            <span class="text-gray-600 group-hover/btn:text-n-red transition-colors">LOAD</span>
+                        </a>
+                    </div>
+                </div>
+
+        </div>
+    </main>
+
+    <!-- System Scripts -->
+    <script>
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+        let lastScrollY = window.scrollY;
+        const header = document.getElementById('smart-header');
+        window.addEventListener('scroll', () => {
+            let currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollY = currentScrollY;
+        });
+    </script>
+</body>
+</html>

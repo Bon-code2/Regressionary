@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white sm:smooth-scroll">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Core</title>
+
+    <!-- Importing Nothing-style typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dot': ['"DotGothic16"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        'n-red': '#E50914', // The harsh accent red
+                        'n-gray': '#1A1A1A'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen bg-black text-white selection:bg-n-red selection:text-white border-t-4 border-n-red scroll-smooth flex flex-col">
+    <!-- Smart Header -->
+    <nav id="smart-header" class="w-full border-b border-gray-800 p-6 fixed top-0 left-0 z-50 bg-black transition-transform duration-300">
+        <div class="flex justify-between items-center">
+            <div class="font-dot text-2xl tracking-widest uppercase">Regressionary</div>
+
+            <!-- Desktop Menu -->
+            <div class="space-x-4 hidden md:block text-sm text-gray-400 font-mono">
+                <a href="/tools" class="hover:text-white transition-colors">Tools</a>
+                <a href="/about" class="hover:text-white transition-colors">About</a>
+                <a href="/social" class="hover:text-white transition-colors">Social</a>
+
+                {% if session.get('username') %}
+                    <!-- Shows if Logged In -->
+                    <a href="/profile" class="text-white border border-gray-700 px-3 py-1 rounded-full text-xs hover:border-n-red transition-colors ml-4">ID: {{ session['username'] }}</a>
+                    <a href="/logout" class="hover:text-n-red transition-colors ml-2 text-xs">Logout</a>
+                {% else %}
+                    <!-- Shows if Logged Out -->
+                    <a href="/login" class="hover:text-white transition-colors ml-4">System.Login</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-white hover:text-n-red focus:outline-none focus:text-n-red transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black border-b border-t border-gray-900 flex flex-col">
+            <a href="/tools" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Tools</a>
+            <a href="/about" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Documentation</a>
+
+            {% if session.get('username') %}
+                <a href="/profile" class="p-4 text-sm font-mono text-white bg-n-gray border-b border-gray-900 uppercase tracking-widest">ACTIVE ID: {{ session['username'] }}</a>
+                <a href="/logout" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Logout</a>
+            {% else %}
+                <a href="/login" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="flex-1 flex flex-col justify-center items-center min-h-screen w-full relative">
+        <div class="inline-block border border-gray-600 rounded-full px-4 py-1 mb-6 text-xs text-gray-400 font-mono">
+            STATUS: SYSTEM ONLINE
+        </div>
+
+        <!-- THE NEW WELCOME SEQUENCE -->
+        {% if session.get('username') %}
+        <div class="mb-4">
+            <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest">
+                > WELCOME SIR, {{ session['username'] | upper }} <span class="animate-pulse">_</span>
+            </span>
+        </div>
+        {% endif %}
+
+        <h1 class="font-dot text-center text-5xl md:text-7xl mb-6 tracking-tight uppercase leading-none">
+            Raw Data.<br>
+            <span class="text-gray-500">Pure Math.</span>
+        </h1>
+
+        <p class="text-center text-sm md:text-base text-gray-400 font-mono mb-12 max-w-xl mx-auto ...">
+            Upload your datasets. Run complex econometric regressions. Decode the hypothesis. A high-performance statistical engine built directly into your browser.
+        </p>
+
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+            <!-- Primary Action Button (Nothing style pill) -->
+            <a href="/upload" class="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-gray-200 transition-colors uppercase text-sm tracking-wider w-full sm:w-auto">
+                Initialize Data
+            </a>
+            <!-- Secondary Action Button -->
+            <a href="/tools" class="border border-gray-600 text-white font-semibold px-8 py-3 rounded-full hover:border-white transition-colors uppercase text-sm tracking-wider w-full sm:w-auto">
+                View Modules
+            </a>
+        </div>
+    </main>
+
+    <!-- Hardware Grid / Feature Section -->
+    <section class="w-full border-t border-gray-800 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-800 mt-12">
+        <a href="/ols" class="block p-8 hover:bg-n-gray transition-colors cursor-crosshair">
+            <h3 class="font-dot text-xl mb-2">OLS.Matrix</h3>
+            <p class="text-xs text-gray-500">Instantly calculate Ordinary Least Squares. View coefficients, standard errors, and interactive residuals.</p>
+        </a>
+        <a href="/timeseries" class="p-8 hover:bg-n-gray transition-colors cursor-crosshair">
+            <h3 class="font-dot text-xl mb-2">Time Series.Test</h3>
+            <p class="text-xs text-gray-500">Run tests and predict the future with time series data</p>
+        </a>
+        <a href="/vault" class="p-8 hover:bg-n-gray transition-colors cursor-crosshair">
+            <h3 class="font-dot text-xl mb-2">Data Vault</h3>
+            <p class="text-xs text-gray-500">We have some DUMMY DATASET for fun testing, TRY THEM OUT</p>
+        </a>
+    </section>
+
+    <!-- === SYSTEM DOCUMENTATION (THEORY NOTES) === -->
+    <section id="system-docs" class="w-full max-w-5xl mx-auto p-6 py-24 border-t border-gray-900 mt-12">
+
+        <header class="mb-16">
+            <h2 class="font-dot text-4xl uppercase tracking-widest mb-2 text-white">System.Docs</h2>
+            <p class="text-xs text-n-red font-mono uppercase tracking-[0.2em]">Theoretical Appendix & Methodologies</p>
+        </header>
+
+        <div class="space-y-12">
+
+            <!-- DOC 01: OLS -->
+            <article class="border border-gray-800 bg-n-gray p-8 relative hover:border-gray-600 transition-colors group">
+                <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-600 group-hover:border-n-red transition-colors"></div>
+                <h3 class="font-dot text-2xl text-white mb-4">01. Ordinary Least Squares (OLS)</h3>
+                <div class="font-mono text-sm text-gray-400 space-y-4 leading-relaxed">
+                    <p>The core computational engine of this terminal relies on the OLS estimator. The objective is to estimate the true population parameters by minimizing the sum of the squared residuals (SSR) between observed targets and the model's predictions.</p>
+                    <div class="bg-black p-4 border border-gray-800 text-green-500 font-bold">
+                        Y = &beta;<sub>0</sub> + &beta;<sub>1</sub>X<sub>1</sub> + &beta;<sub>2</sub>X<sub>2</sub> + ... + &epsilon;
+                    </div>
+                    <p>Where <span class="text-white">Y</span> is the dependent vector, <span class="text-white">&beta;</span> represents the estimated coefficients, <span class="text-white">X</span> are the predictor matrices, and <span class="text-white">&epsilon;</span> is the stochastic error term.</p>
+                </div>
+            </article>
+
+            <!-- DOC 02: CLRM -->
+            <article class="border border-gray-800 bg-n-gray p-8 relative hover:border-gray-600 transition-colors group">
+                <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-600 group-hover:border-n-red transition-colors"></div>
+                <h3 class="font-dot text-2xl text-white mb-4">02. The Gauss-Markov Assumptions</h3>
+                <div class="font-mono text-sm text-gray-400 space-y-4 leading-relaxed">
+                    <p>For the OLS estimator to be Best Linear Unbiased Estimator (BLUE), the data matrix must satisfy the Classical Linear Regression Model (CLRM) parameters:</p>
+                    <ul class="list-none space-y-2 border-l border-gray-700 pl-4">
+                        <li><span class="text-white">> Linearity:</span> The parameters (&beta;) must be linear.</li>
+                        <li><span class="text-white">> Exogeneity:</span> Expected value of errors is zero; predictors are independent of errors.</li>
+                        <li><span class="text-white">> Homoskedasticity:</span> The variance of the residuals remains constant across all observations.</li>
+                        <li><span class="text-white">> No Autocorrelation:</span> Residuals are not correlated with each other over time or space.</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- DOC 03: DIAGNOSTICS -->
+            <article class="border border-gray-800 bg-n-gray p-8 relative hover:border-gray-600 transition-colors group">
+                <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-600 group-hover:border-n-red transition-colors"></div>
+                <h3 class="font-dot text-2xl text-white mb-4">03. Automated Diagnostic Testing</h3>
+                <div class="font-mono text-sm text-gray-400 space-y-4 leading-relaxed">
+                    <p>The <span class="text-n-red font-bold">Study.Protocol</span> module actively intercepts the OLS calculation to test for assumption violations using native statsmodels processing.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-black p-4 border border-gray-800">
+                            <h4 class="text-white font-bold mb-2">Breusch-Pagan Test</h4>
+                            <p class="text-xs">Detects Heteroskedasticity. If the variance of errors grows alongside the independent variable, standard errors become biased, rendering hypothesis tests invalid.</p>
+                        </div>
+                        <div class="bg-black p-4 border border-gray-800">
+                            <h4 class="text-white font-bold mb-2">Breusch-Godfrey Test</h4>
+                            <p class="text-xs">Detects Serial Autocorrelation. Crucial for time-series matrices. Evaluates if past errors influence current errors, indicating a missing explanatory variable.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- DOC 04: EVALUATION -->
+            <article class="border border-gray-800 bg-n-gray p-8 relative hover:border-gray-600 transition-colors group">
+                <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-600 group-hover:border-n-red transition-colors"></div>
+                <h3 class="font-dot text-2xl text-white mb-4">04. Inference & Topology</h3>
+                <div class="font-mono text-sm text-gray-400 space-y-4 leading-relaxed">
+                    <p>Post-diagnostic, the system renders final evaluations. <span class="text-white">R-Squared</span> identifies the percentage of variance explained by the model, while <span class="text-white">Adjusted R-Squared</span> penalizes the matrix for incorporating non-significant vectors.</p>
+                    <p>The <span class="text-n-red font-bold">Visual.Matrix</span> engine subsequently maps predicted values against actual targets in a 2D topological space to visually identify outliers and model tracking efficiency.</p>
+                </div>
+            </article>
+
+        </div>
+
+        <footer class="mt-24 border-t border-gray-900 pt-8 pb-12 text-center text-[10px] font-mono text-gray-600 uppercase tracking-[0.3em]">
+            Regressionary System Architecture // 2026
+            <div>
+                <p> | All Rights Reserved | | Created by LISBON |
+                        | Department of Economics, Gargaon College |
+                </p>
+            </div>
+        </footer>
+
+    </section>
+
+    <script>
+        // Target the hardware
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Toggle the interface
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 2. NEW: Smart Header Logic
+        let lastScrollY = window.scrollY;
+        const header = document.getElementById('smart-header');
+
+        window.addEventListener('scroll', () => {
+            // Get current scroll position
+            let currentScrollY = window.scrollY;
+
+            // If scrolling down, hide the header (slide it up by 100% of its height)
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                header.style.transform = 'translateY(-100%)';
+            }
+            // If scrolling up, show the header (bring it back to 0)
+            else {
+                header.style.transform = 'translateY(0)';
+            }
+
+            // Update the last scroll position
+            lastScrollY = currentScrollY;
+        });
+    </script>
+
+</body>
+</html>
