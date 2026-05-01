@@ -51,16 +51,29 @@
         <div class="absolute top-0 left-0 bg-green-500 text-black font-dot px-3 py-1 text-sm">SYSTEM MSG</div>
         <h2 class="font-dot text-2xl text-green-500 mb-4 mt-6">> {{ status }}</h2>
 
-        <div class="grid grid-cols-2 gap-4 border-t border-gray-800 pt-4 font-mono text-sm text-gray-400 mb-6">
-            <div><span class="text-white">FILE:</span> {{ filename }}</div>
-            <div><span class="text-white">MATRIX:</span> {{ rows }} Rows x {{ cols }} Columns</div>
-        </div>
+        <div class="mt-4 border-t border-gray-800 pt-4 space-y-4">
 
-        <h3 class="font-dot text-xl mb-2">Detected Variables:</h3>
-        <div class="flex flex-wrap gap-2">
-            {% for col in columns %}
-                <span class="border border-gray-600 px-3 py-1 text-xs font-mono text-gray-300">{{ col }}</span>
-            {% endfor %}
+            <div class="flex flex-col sm:flex-row justify-between text-[10px] font-mono tracking-widest text-gray-400 gap-y-2">
+                <div class="flex flex-col">
+                    <span class="text-white">FILE:</span>
+                    <span class="break-all">{{ filename }}</span>
+                </div>
+                <div class="flex flex-col sm:text-right">
+                    <span class="text-white">MATRIX:</span>
+                    <span>{{ rows }} Rows x {{ cols }} Columns</span>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-sm font-mono text-white mb-3">Detected Variables:</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for col in columns %}
+                    <span class="px-3 py-1 bg-n-gray border border-gray-700 rounded text-[10px] font-mono text-gray-300">
+                        {{ col }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div class="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row gap-4">
