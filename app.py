@@ -56,7 +56,7 @@ def serve_sw():
 
 @app.route('/manifest.json')
 def serve_manifest():
-    return send_from_directory('static', 'manifest.json')
+    return send_from_directory('static', 'manifest.json', mimetype='application/json')
     
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
