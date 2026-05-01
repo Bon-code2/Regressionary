@@ -52,10 +52,12 @@ def about():
 
 @app.route('/sw.js')
 def serve_sw():
+    # This now looks in 'static' for 'sw.js'
     return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 
 @app.route('/manifest.json')
 def serve_manifest():
+    # This now looks in 'static' for 'manifest.json'
     return send_from_directory('static', 'manifest.json', mimetype='application/json')
     
 @app.route('/profile', methods=['GET', 'POST'])
