@@ -10,3 +10,4 @@ statsmodels
 plotly
 gunicorn
 openpyxl
+kaleido
