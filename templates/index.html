@@ -220,70 +220,88 @@
     </section>
 
     <script>
-        // Target the hardware
-        const menuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+    // --- SYSTEM UI: MOBILE NAVIGATION ---
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
 
-        // Toggle the interface
+    if (menuBtn && mobileMenu) {
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+    }
 
-        // 2. NEW: Smart Header Logic
-        let lastScrollY = window.scrollY;
-        const header = document.getElementById('smart-header');
+    // --- SYSTEM UI: SMART HEADER LOGIC ---
+    let lastScrollY = window.scrollY;
+    const header = document.getElementById('smart-header');
 
-        window.addEventListener('scroll', () => {
-            // Get current scroll position
-            let currentScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+        let currentScrollY = window.scrollY;
 
-            // If scrolling down, hide the header (slide it up by 100% of its height)
-            if (currentScrollY > lastScrollY && currentScrollY > 50) {
-                header.style.transform = 'translateY(-100%)';
+        // Hide header on scroll down, show on scroll up
+        if (currentScrollY > lastScrollY && currentScrollY > 50) {
+            header.style.transform = 'translateY(-100%)';
+        } else {
+            header.style.transform = 'translateY(0)';
+        }
+        lastScrollY = currentScrollY;
+    });
+
+    // --- PWA: INSTALLATION ENGINE ---
+    let deferredPrompt;
+    const pwaBtn = document.getElementById('pwa-install-btn');
+
+    /**
+     * STAGE 1: Check if already running in standalone mode (Installed)
+     * If true, we hide the button immediately so the user doesn't see it inside the app.
+     */
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        if (pwaBtn) pwaBtn.classList.add('hidden');
+    }
+
+    /**
+     * STAGE 2: Listen for the 'beforeinstallprompt' event
+     * This fires when the browser confirms the Manifest and Service Worker are valid.
+     */
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the default mini-infobar
+        e.preventDefault();
+        // Stash the event so it can be triggered by our custom button
+        deferredPrompt = e;
+        // Reveal our "Nothing" styled install button
+        if (pwaBtn) pwaBtn.classList.remove('hidden');
+    });
+
+    /**
+     * STAGE 3: Installation Trigger
+     */
+    if (pwaBtn) {
+        pwaBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the native install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`SYSTEM: INSTALLATION ${outcome.toUpperCase()}`);
+                
+                // We've used the prompt, it can't be used again
+                deferredPrompt = null;
+                
+                // Hide the button
+                pwaBtn.classList.add('hidden');
             }
-            // If scrolling up, show the header (bring it back to 0)
-            else {
-                header.style.transform = 'translateY(0)';
-            }
-
-            // Update the last scroll position
-            lastScrollY = currentScrollY;
         });
+    }
 
-
-            let deferredPrompt;
-            const installBtn = document.getElementById('pwa-install-btn');
-
-            // Step 1: Listen for the browser telling us the PWA is ready to install
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // Prevent the annoying default mini-infobar from appearing
-                e.preventDefault();
-                // Save the event so we can trigger it when the user actually clicks our button
-                deferredPrompt = e;
-                // Make our custom button visible
-                installBtn.classList.remove('hidden');
-            });
-
-            // Step 2: What happens when the user clicks your button
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    // Trigger the native browser install prompt
-                    deferredPrompt.prompt();
-                    // Wait for the user to click "Install" or "Cancel"
-                    const { outcome } = await deferredPrompt.userChoice;
-                    // Clear the prompt so it can't be used again
-                    deferredPrompt = null;
-                    // Hide our button once they install it
-                    installBtn.classList.add('hidden');
-                }
-            });
-
-            // Step 3: Cleanup - if they already have it installed, ensure the button stays hidden
-            window.addEventListener('appinstalled', () => {
-                installBtn.classList.add('hidden');
-            });
-
-    </script>
+    /**
+     * STAGE 4: Final Success Log
+     */
+    window.addEventListener('appinstalled', () => {
+        console.log('SYSTEM: ARCHITECTURE INITIALIZED ON HARDWARE.');
+        if (pwaBtn) pwaBtn.classList.add('hidden');
+        deferredPrompt = null;
+    });
+</script>
 
 </body>
 </html>
