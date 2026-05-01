@@ -22,7 +22,7 @@ if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Flask application. Check your .env file.")  # Change this before deploying!
 
 # Configure the SQLite Database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///regressionary.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
