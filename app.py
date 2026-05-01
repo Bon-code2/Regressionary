@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
+import base64
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
@@ -242,59 +243,73 @@ def ols():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    # Load active columns for the GET request UI
     columns = session.get('active_columns', [])
+    ols_plot_html = None  # Initialize for the template
 
     if request.method == 'POST':
         y_var = request.form.get('y_var')
-        x_vars = request.form.getlist('x_vars')  # getlist() catches multiple checkboxes
+        x_vars = request.form.getlist('x_vars')
 
-        # Failsafe: Ensure they selected variables
         if not y_var or not x_vars:
             flash('ERROR: MUST SELECT ONE TARGET AND AT LEAST ONE PREDICTOR.')
             return redirect(url_for('ols'))
 
         try:
-            # 1. Load the active dataset from memory
             data_path = session.get('active_data_path')
             df = pd.read_csv(data_path)
-
-            # 2. Clean the data (Drop rows with missing values in selected columns)
             model_data = df[[y_var] + x_vars].dropna()
 
-            # 3. Define the Math
             Y = model_data[y_var]
-            X = model_data[x_vars]
-
-            # Add the Y-intercept (constant) to the equation. Crucial for standard OLS!
-            X = sm.add_constant(X)
-
-            # 4. Execute the Regression
+            X = sm.add_constant(model_data[x_vars])
             model = sm.OLS(Y, X).fit()
 
-            # 5. Extract the Results into a clean dictionary
+            # --- GENERATE ACTUAL VS. PREDICTED GRAPH ---
+            Y_pred = model.predict(X)
+
+            fig = px.scatter(
+                x=Y, y=Y_pred,
+                labels={'x': f'Actual {y_var}', 'y': f'Predicted {y_var}'},
+                title="Model Accuracy: Actual vs. Predicted Topology",
+                template="plotly_dark"
+            )
+
+            # Add the 45-degree reference line (Perfect Fit)
+            fig.add_shape(
+                type="line", x0=Y.min(), y0=Y.min(), x1=Y.max(), y1=Y.max(),
+                line=dict(color="#E50914", dash="dot", width=2)
+            )
+
+            fig.update_traces(marker=dict(color='#00ff41', size=8, opacity=0.6))
+            fig.update_layout(
+                font=dict(family="Courier New, monospace", color="#9ca3af"),
+                plot_bgcolor='black',
+                paper_bgcolor='black'
+            )
+
+            # Convert to HTML for injection
+            ols_plot_html = pio.to_html(fig, full_html=False, config={'displayModeBar': False})
+
+            # Prepare results dictionary
             intercept = round(model.params['const'], 4)
             coef_terms = " ".join([f"+ {round(val, 4)}({var})" for var, val in model.params.items() if var != 'const'])
-            equation_string = f"{y_var} = {intercept} {coef_terms}"
 
             results = {
                 'dependent': y_var,
-                'equation': equation_string,
+                'equation': f"{y_var} = {intercept} {coef_terms}",
                 'observations': int(model.nobs),
                 'r_squared': round(model.rsquared, 4),
                 'adj_r_squared': round(model.rsquared_adj, 4),
                 'f_stat_p': round(model.f_pvalue, 4),
-                # Convert series to dictionaries for easy looping in HTML
                 'coefficients': round(model.params, 4).to_dict(),
                 'p_values': round(model.pvalues, 4).to_dict(),
                 'std_errors': round(model.bse, 4).to_dict()
             }
 
             session['latest_results'] = results
-            return render_template('ols.html', columns=columns, results=results)
+            return render_template('ols.html', columns=columns, results=results, ols_plot_html=ols_plot_html)
 
         except Exception as e:
-            flash(f'CALCULATION ERROR: Ensure selected variables are numeric. Details: {str(e)}')
+            flash(f'CALCULATION ERROR: {str(e)}')
             return redirect(url_for('ols'))
 
     return render_template('ols.html', columns=columns)
@@ -418,6 +433,25 @@ def visual():
             # Convert the interactive plot to HTML to inject into the template
             plot_html = pio.to_html(fig, full_html=False, config={'displayModeBar': False})
 
+            # --- THE DISK-WRITE FIX ---
+            img_bytes = fig.to_image(format="png")
+            graph_base64 = base64.b64encode(img_bytes).decode('utf-8')
+
+            # Save the giant image string to a temporary text file on the server
+            cache_filename = f"user_{session['user_id']}_vis_cache.txt"
+            cache_path = os.path.join(app.config['UPLOAD_FOLDER'], cache_filename)
+
+            with open(cache_path, "w") as f:
+                f.write(graph_base64)
+
+            # Store only lightweight text in the session cookie to prevent crashing
+            session['visual_results'] = {
+                'y': selected_y,
+                'x': selected_x,
+                'cache_file': cache_filename
+            }
+            # ---------------------------
+
         except Exception as e:
             flash(f'RENDER ERROR: Could not map visual vector. {str(e)}', 'error')
             return redirect(url_for('visual'))
@@ -425,6 +459,32 @@ def visual():
     return render_template('visual.html', columns=columns, plot_html=plot_html, current_x=selected_x,
                            current_y=selected_y)
 
+
+@app.route('/visual_report')
+def visual_report():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    results = session.get('visual_results')
+    if not results:
+        flash('SYS.ERR: NO VISUAL DATA CACHED. RENDER A GRAPH FIRST.', 'error')
+        return redirect(url_for('visual'))
+
+    # --- RETRIEVE IMAGE FROM DISK ---
+    cache_path = os.path.join(app.config['UPLOAD_FOLDER'], results['cache_file'])
+
+    try:
+        with open(cache_path, "r") as f:
+            graph_base64 = f.read()
+
+        # Temporarily inject the image string back into the dictionary for the template
+        results['graph_img'] = graph_base64
+
+    except FileNotFoundError:
+        flash('SYS.ERR: IMAGE CACHE CORRUPTED OR DELETED.', 'error')
+        return redirect(url_for('visual'))
+
+    return render_template('visual_report.html', results=results)
 
 # Update your existing /protocol route to look like this:
 @app.route('/protocol')
