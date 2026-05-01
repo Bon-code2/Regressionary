@@ -59,6 +59,14 @@ def serve_sw():
 def serve_manifest():
     # This now looks in 'static' for 'manifest.json'
     return send_from_directory('static', 'manifest.json', mimetype='application/json')
+
+@app.route('/icon.png')
+def serve_icon():
+    return send_from_directory('static', 'icon.png')
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    return send_from_directory('static', 'favicon.ico')
     
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
