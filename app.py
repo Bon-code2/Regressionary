@@ -14,7 +14,6 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima.model import ARIMA
 import plotly.graph_objects as go
 
-
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
@@ -27,8 +26,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 UPLOAD_FOLDER = 'instance/uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Creates the folder if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Creates the folder if it doesn't exist
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 # Define the User Architecture
 class User(db.Model):
@@ -46,28 +46,34 @@ with app.app_context():
 def home():
     return render_template('index.html')
 
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 @app.route('/sw.js')
 def serve_sw():
     # This now looks in 'static' for 'sw.js'
     return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 
+
 @app.route('/manifest.json')
 def serve_manifest():
     # This now looks in 'static' for 'manifest.json'
     return send_from_directory('static', 'manifest.json', mimetype='application/json')
 
+
 @app.route('/icon.png')
 def serve_icon():
     return send_from_directory('static', 'icon.png')
 
+
 @app.route('/favicon.ico')
 def serve_favicon():
     return send_from_directory('static', 'favicon.ico')
-    
+
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'user_id' not in session:
@@ -130,16 +136,16 @@ def login():
             session['username'] = user.username
             return redirect(url_for('tools'))  # Route them to the main app
         else:
-            flash('ACCESS DENIED: Invalid ID or Passkey','error')
+            flash('ACCESS DENIED: Invalid ID or Passkey', 'error')
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-
 
 
 # --- INITIALIZE PROFILE (REGISTER) ---
@@ -152,12 +158,12 @@ def register():
 
         # Validation checks
         if password != confirm_password:
-            flash('ERROR: Passkeys do not match.','error')
+            flash('ERROR: Passkeys do not match.', 'error')
             return redirect(url_for('register'))
 
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
-            flash('ERROR: User ID already active.','error')
+            flash('ERROR: User ID already active.', 'error')
             return redirect(url_for('register'))
 
         # Encrypt the passkey and save to database
@@ -267,8 +273,13 @@ def ols():
             model = sm.OLS(Y, X).fit()
 
             # 5. Extract the Results into a clean dictionary
+            intercept = round(model.params['const'], 4)
+            coef_terms = " ".join([f"+ {round(val, 4)}({var})" for var, val in model.params.items() if var != 'const'])
+            equation_string = f"{y_var} = {intercept} {coef_terms}"
+
             results = {
                 'dependent': y_var,
+                'equation': equation_string,
                 'observations': int(model.nobs),
                 'r_squared': round(model.rsquared, 4),
                 'adj_r_squared': round(model.rsquared_adj, 4),
@@ -279,6 +290,7 @@ def ols():
                 'std_errors': round(model.bse, 4).to_dict()
             }
 
+            session['latest_results'] = results
             return render_template('ols.html', columns=columns, results=results)
 
         except Exception as e:
@@ -305,6 +317,7 @@ def vault():
 
     # Send the list of files to the new vault template
     return render_template('vault.html', datasets=datasets)
+
 
 @app.route('/load_vault/<dataset_name>')
 def load_vault(dataset_name):
@@ -497,8 +510,10 @@ def protocol():
                     paper_bgcolor='black', plot_bgcolor='#0a0a0a',
                     font=dict(family="Courier New, monospace", color="#9ca3af", size=12),
                     title=dict(font=dict(color="white", size=18)),
-                    xaxis=dict(title=f"Actual {y_var}", showgrid=True, gridwidth=1, gridcolor='#1A1A1A', zerolinecolor='#333333'),
-                    yaxis=dict(title=f"Predicted {y_var}", showgrid=True, gridwidth=1, gridcolor='#1A1A1A', zerolinecolor='#333333'),
+                    xaxis=dict(title=f"Actual {y_var}", showgrid=True, gridwidth=1, gridcolor='#1A1A1A',
+                               zerolinecolor='#333333'),
+                    yaxis=dict(title=f"Predicted {y_var}", showgrid=True, gridwidth=1, gridcolor='#1A1A1A',
+                               zerolinecolor='#333333'),
                     margin=dict(l=40, r=40, t=60, b=40)
                 )
 
@@ -520,6 +535,7 @@ def protocol():
         fit_metrics=fit_metrics,
         plot_html=plot_html
     )
+
 
 @app.route('/protocol_step_1', methods=['POST'])
 def protocol_step_1():
@@ -601,6 +617,7 @@ def protocol_step_3():
     session['protocol_stage'] = 4
     flash('SYSTEM: INFERENCE COMPLETE. RENDERING EVALUATION MATRIX.', 'success')
     return redirect(url_for('protocol'))
+
 
 @app.route('/protocol_reset', methods=['POST'])
 def protocol_reset():
@@ -696,6 +713,22 @@ def timeseries():
             return redirect(url_for('timeseries'))
 
     return render_template('timeseries.html', columns=columns, diagnostics=diagnostics, plot_html=plot_html)
+
+
+@app.route('/report')
+def report():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve the last calculated results from session
+    # (Ensure your /ols route saves 'results' to the session before redirecting)
+    results = session.get('latest_results')
+
+    if not results:
+        flash('SYSTEM ERR: NO RESULTS FOUND IN CACHE. RUN ANALYSIS FIRST.', 'error')
+        return redirect(url_for('ols'))
+
+    return render_template('report.html', results=results)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
