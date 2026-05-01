@@ -54,6 +54,10 @@ def about():
 def serve_sw():
     return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory('static', 'manifest.json')
+    
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'user_id' not in session:
