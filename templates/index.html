@@ -10,6 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
     <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -74,7 +82,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <main class="flex-1 flex flex-col justify-center items-center min-h-screen w-full relative">
+    <main class="flex-1 flex flex-col justify-center items-center min-h-screen w-full relative pt-24">
         <div class="inline-block border border-gray-600 rounded-full px-4 py-1 mb-6 text-xs text-gray-400 font-mono">
             STATUS: SYSTEM ONLINE
         </div>
@@ -106,6 +114,12 @@
             <a href="/tools" class="border border-gray-600 text-white font-semibold px-8 py-3 rounded-full hover:border-white transition-colors uppercase text-sm tracking-wider w-full sm:w-auto">
                 View Modules
             </a>
+        </div>
+
+        <div class="mt-8 flex justify-center w-full">
+            <button id="pwa-install-btn" class=" px-6 py-3 bg-n-gray text-white rounded-lg font-bold shadow-md cursor-pointer hover:border-n-red border border-transparent transition-colors">
+                📱 Install Regressionary App
+            </button>
         </div>
     </main>
 
@@ -235,6 +249,40 @@
             // Update the last scroll position
             lastScrollY = currentScrollY;
         });
+
+
+            let deferredPrompt;
+            const installBtn = document.getElementById('pwa-install-btn');
+
+            // Step 1: Listen for the browser telling us the PWA is ready to install
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the annoying default mini-infobar from appearing
+                e.preventDefault();
+                // Save the event so we can trigger it when the user actually clicks our button
+                deferredPrompt = e;
+                // Make our custom button visible
+                installBtn.classList.remove('hidden');
+            });
+
+            // Step 2: What happens when the user clicks your button
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // Trigger the native browser install prompt
+                    deferredPrompt.prompt();
+                    // Wait for the user to click "Install" or "Cancel"
+                    const { outcome } = await deferredPrompt.userChoice;
+                    // Clear the prompt so it can't be used again
+                    deferredPrompt = null;
+                    // Hide our button once they install it
+                    installBtn.classList.add('hidden');
+                }
+            });
+
+            // Step 3: Cleanup - if they already have it installed, ensure the button stays hidden
+            window.addEventListener('appinstalled', () => {
+                installBtn.classList.add('hidden');
+            });
+
     </script>
 
 </body>
