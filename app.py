@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import statsmodels.api as sm
@@ -22,7 +22,7 @@ if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Flask application. Check your .env file.")  # Change this before deploying!
 
 # Configure the SQLite Database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///regressionary.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -50,6 +50,9 @@ def home():
 def about():
     return render_template('about.html')
 
+@app.route('/sw.js')
+def serve_sw():
+    return send_from_directory('static', 'sw.js')
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -680,7 +683,5 @@ def timeseries():
 
     return render_template('timeseries.html', columns=columns, diagnostics=diagnostics, plot_html=plot_html)
 
-if __name__ == "__main__":
-    # Get the port from the environment, default to 5000 for local testing
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
