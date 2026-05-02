@@ -68,6 +68,13 @@ def serve_icon():
 def serve_favicon():
     return send_from_directory('static', 'favicon.ico')
 
+@app.route('/robots.txt')
+def serve_robots():
+    return send_from_directory('static', 'robots.txt', mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    return send_from_directory('static', 'sitemap.xml', mimetype='application/xml')
 
 # --- SECURE TOOLS MODULE (Placeholder) ---
 @app.route('/tools')
