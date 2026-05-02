@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black text-white sm:smooth-scroll">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regressionary | Comm.Link</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dot': ['"DotGothic16"', 'sans-serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        'n-red': '#E50914',
+                        'n-gray': '#1A1A1A',
+                        'matrix': '#00ff41'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen bg-black text-white selection:bg-n-red selection:text-white border-t-4 border-n-red flex flex-col">
+
+    <!-- Smart Header -->
+    <nav class="w-full border-b border-gray-800 p-6 fixed top-0 left-0 z-50 bg-black">
+        <div class="flex justify-between items-center max-w-6xl mx-auto">
+            <a href="/" class="font-dot text-2xl tracking-widest uppercase hover:text-n-red transition-colors">Regressionary</a>
+            <div class="space-x-4 text-sm text-gray-400 font-mono">
+                <a href="/tools" class="hover:text-white transition-colors">Tools</a>
+                <a href="/about" class="hover:text-white transition-colors">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-8 mt-24 max-w-3xl mx-auto w-full">
+
+        <!-- Identity Terminal -->
+        <div class="w-full border border-gray-800 bg-n-gray p-8 md:p-12 relative shadow-2xl">
+            <!-- Decorative Corners -->
+            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-n-red"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-n-red"></div>
+
+            <header class="mb-8 border-b border-gray-800 pb-6">
+                <div class="inline-block border border-matrix text-matrix rounded-full px-3 py-1 mb-4 text-[10px] font-mono tracking-widest uppercase animate-pulse">
+                    SYS.ADMIN ONLINE
+                </div>
+                <h1 class="font-dot text-4xl md:text-5xl uppercase tracking-widest text-white">Comm.Link</h1>
+                <p class="text-xs text-gray-500 font-mono mt-2">AUTHORIZATION: BON-CODE2</p>
+            </header>
+
+            <!-- Bio Section -->
+            <div class="font-mono text-sm text-gray-400 space-y-4 leading-relaxed mb-10">
+                <p>> <span class="text-white">STATUS:</span> Rookie Coder // Economics Major</p>
+                <p>> <span class="text-white">MISSION:</span> Building statistical engines and learning to code one matrix at a time. Regressionary is my playground for combining raw data, econometrics, and software development.</p>
+                <p class="italic text-xs text-gray-500">// Still learning. Still compiling. Watch this space.</p>
+            </div>
+
+            <!-- Social Links Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                <!-- GitHub -->
+                <a href="https://github.com/Bon-code2" target="_blank" class="group border border-gray-700 bg-black p-4 hover:border-white transition-all flex flex-col items-center justify-center text-center">
+                    <span class="font-dot text-xl text-white mb-1 group-hover:text-matrix transition-colors">GitHub</span>
+                    <span class="text-[10px] font-mono text-gray-500 tracking-widest uppercase">/Bon-code2</span>
+                </a>
+
+                <!-- Twitter / X -->
+                <a href="https://twitter.com/YOUR_TWITTER_HANDLE" target="_blank" class="group border border-gray-700 bg-black p-4 hover:border-white transition-all flex flex-col items-center justify-center text-center">
+                    <span class="font-dot text-xl text-white mb-1 group-hover:text-[#1DA1F2] transition-colors">Twitter_X</span>
+                    <span class="text-[10px] font-mono text-gray-500 tracking-widest uppercase">Comm.Channel</span>
+                </a>
+
+                <!-- Instagram -->
+                <a href="https://instagram.com/YOUR_INSTA_HANDLE" target="_blank" class="group border border-gray-700 bg-black p-4 hover:border-white transition-all flex flex-col items-center justify-center text-center">
+                    <span class="font-dot text-xl text-white mb-1 group-hover:text-[#E1306C] transition-colors">Instagram</span>
+                    <span class="text-[10px] font-mono text-gray-500 tracking-widest uppercase">Visual.Log</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-12">
+            <a href="/" class="text-xs font-mono text-gray-500 hover:text-n-red transition-colors tracking-widest uppercase">
+                &larr; Return to Mainframe
+            </a>
+        </div>
+    </main>
+
+</body>
+</html>

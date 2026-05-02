@@ -34,31 +34,59 @@
         <div class="flex justify-between items-center">
             <a href="/" class="font-dot text-2xl tracking-widest uppercase hover:text-n-red transition-colors">Regressionary</a>
 
-            <div class="space-x-4 hidden md:block text-sm text-gray-400 font-mono">
-                <!-- Using Jinja to display the logged-in username -->
-                <span class="text-white border border-gray-700 px-3 py-1 rounded-full text-xs">ID: {{ session['username'] }}</span>
-                <a href="/logout" class="hover:text-n-red transition-colors ml-4">System.Logout</a>
-            </div>
-
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none focus:text-n-red transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-        </div>
-
-        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black border-b border-t border-gray-900 flex flex-col">
-            <div class="p-4 text-xs font-mono text-white border-b border-gray-900 bg-n-gray">ACTIVE ID: {{ session['username'] }}</div>
-            <a href="/logout" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Logout</a>
         </div>
     </nav>
 
     <!-- Main Dashboard -->
     <main class="flex-grow flex flex-col p-8 mt-24 max-w-6xl mx-auto w-full">
 
+        <!-- === THE SYSTEM MESSAGE CATCHER === -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-3 w-full">
+                    {% for category, message in messages %}
+                        <!-- Dynamic styling: Red for errors, Green for success -->
+                        <div class="border border-gray-800 p-4 font-mono text-sm tracking-widest uppercase relative overflow-hidden
+                            {% if category == 'error' %} bg-[#1a0505] text-n-red border-l-4 border-l-n-red
+                            {% elif category == 'success' %} bg-[#051a0a] text-[#00ff41] border-l-4 border-l-[#00ff41]
+                            {% else %} bg-gray-900 text-white border-l-4 border-l-gray-500 {% endif %}">
+
+                            <span class="opacity-50 mr-2">> SYS.LOG:</span> {{ message }}
+
+                            <!-- Scanning line animation for terminal effect -->
+                            <div class="absolute top-0 left-0 w-full h-[1px] bg-white opacity-10 animate-[scan_2s_ease-in-out_infinite]"></div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <!-- Terminal Welcome Sequence -->
-        <div class="mb-6 border-l-2 border-n-red pl-4">
-            <span class="font-dot text-lg md:text-xl text-n-red tracking-widest uppercase">
-                > SYSTEM ACCESS GRANTED, {{ session['username'] }} <span class="animate-pulse">_</span>
-            </span>
+        <div class="mb-6 border-l-2 border-n-red pl-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <span class="font-dot text-lg md:text-xl text-n-red tracking-widest uppercase block">
+                    > SYSTEM ACCESS GRANTED // {{ session['username'] }} <span class="animate-pulse">_</span>
+                </span>
+
+                <!-- Display Active Dataset Status -->
+                {% if session.get('active_columns') %}
+                    <span class="font-mono text-xs text-[#00ff41] tracking-widest uppercase mt-2 block">
+                        > STATUS: DATA INJECTED AND READY
+                    </span>
+                {% else %}
+                    <span class="font-mono text-xs text-gray-500 tracking-widest uppercase mt-2 block">
+                        > STATUS: NO DATA IN MEMORY
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- The Memory Purge Button -->
+            <a href="/purge" class="text-[10px] font-mono border border-n-red text-n-red hover:bg-n-red hover:text-white px-4 py-2 transition-colors uppercase tracking-widest cursor-crosshair">
+                [ Eject Active Dataset ]
+            </a>
         </div>
 
         <header class="mb-12 border-b border-gray-800 pb-6">

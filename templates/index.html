@@ -48,15 +48,7 @@
                 <a href="/tools" class="hover:text-white transition-colors">Tools</a>
                 <a href="/about" class="hover:text-white transition-colors">About</a>
                 <a href="/social" class="hover:text-white transition-colors">Social</a>
-
-                {% if session.get('username') %}
-                    <!-- Shows if Logged In -->
-                    <a href="/profile" class="text-white border border-gray-700 px-3 py-1 rounded-full text-xs hover:border-n-red transition-colors ml-4">ID: {{ session['username'] }}</a>
-                    <a href="/logout" class="hover:text-n-red transition-colors ml-2 text-xs">Logout</a>
-                {% else %}
-                    <!-- Shows if Logged Out -->
-                    <a href="/login" class="hover:text-white transition-colors ml-4">System.Login</a>
-                {% endif %}
+                <a href="/purge" class="text-n-red hover:text-white transition-colors ml-4">[Wipe Session]</a>
             </div>
 
             <!-- Mobile Menu Button -->
@@ -71,13 +63,6 @@
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black border-b border-t border-gray-900 flex flex-col">
             <a href="/tools" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Tools</a>
             <a href="/about" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Documentation</a>
-
-            {% if session.get('username') %}
-                <a href="/profile" class="p-4 text-sm font-mono text-white bg-n-gray border-b border-gray-900 uppercase tracking-widest">ACTIVE ID: {{ session['username'] }}</a>
-                <a href="/logout" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Logout</a>
-            {% else %}
-                <a href="/login" class="p-4 text-sm font-mono text-n-red hover:text-white hover:bg-n-red transition-colors uppercase tracking-widest">System.Login</a>
-            {% endif %}
         </div>
     </nav>
 
@@ -91,7 +76,7 @@
         {% if session.get('username') %}
         <div class="mb-4">
             <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest">
-                > WELCOME SIR, {{ session['username'] | upper }} <span class="animate-pulse">_</span>
+                > GUEST SESSION INITIALIZED: {{ session['username'] }} <span class="animate-pulse">_</span>
             </span>
         </div>
         {% endif %}
@@ -279,14 +264,14 @@
             if (deferredPrompt) {
                 // Show the native install prompt
                 deferredPrompt.prompt();
-                
+
                 // Wait for the user to respond to the prompt
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log(`SYSTEM: INSTALLATION ${outcome.toUpperCase()}`);
-                
+
                 // We've used the prompt, it can't be used again
                 deferredPrompt = null;
-                
+
                 // Hide the button
                 pwaBtn.classList.add('hidden');
             }
