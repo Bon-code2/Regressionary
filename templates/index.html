@@ -63,6 +63,8 @@
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-black border-b border-t border-gray-900 flex flex-col">
             <a href="/tools" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Tools</a>
             <a href="/about" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Documentation</a>
+            <a href="/social" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">Social</a>
+            <a href="/purge" class="p-4 text-sm font-mono text-gray-400 hover:text-white hover:bg-n-gray border-b border-gray-900 transition-colors uppercase tracking-widest">[Wipe Session]</a>
         </div>
     </nav>
 
@@ -75,7 +77,7 @@
         <!-- THE NEW WELCOME SEQUENCE -->
         {% if session.get('username') %}
         <div class="mb-4">
-            <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest">
+            <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest text-centre">
                 > GUEST SESSION INITIALIZED: {{ session['username'] }} <span class="animate-pulse">_</span>
             </span>
         </div>
