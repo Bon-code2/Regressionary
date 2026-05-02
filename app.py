@@ -3,10 +3,8 @@ from dotenv import load_dotenv
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
-from werkzeug.utils import secure_filename
+import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 import statsmodels.api as sm
 from statsmodels.stats.diagnostic import het_breuschpagan, acorr_breusch_godfrey
 from statsmodels.stats.stattools import durbin_watson
@@ -20,36 +18,33 @@ app.secret_key = os.environ.get('SECRET_KEY')
 if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Flask application. Check your .env file.")  # Change this before deploying!
 
-# Configure the SQLite Database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///regressionary.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
 UPLOAD_FOLDER = 'instance/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Creates the folder if it doesn't exist
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-# Define the User Architecture
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-
-
-# Generate the Database Tables
-with app.app_context():
-    db.create_all()
 
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+@app.before_request
+def assign_guest_id():
+    """Automatically assigns a unique, temporary ID to every visitor."""
+    # Skip assigning IDs for static files (CSS, JS, images)
+    if request.endpoint and 'static' not in request.endpoint:
+        if 'user_id' not in session:
+            # Generate a random 8-character ID
+            session['user_id'] = str(uuid.uuid4())[:8]
+            session['username'] = f"GUEST-{session['user_id'].upper()}"
+
 
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/social')
+def social():
+    return render_template('social.html')
 
 
 @app.route('/sw.js')
@@ -74,124 +69,16 @@ def serve_favicon():
     return send_from_directory('static', 'favicon.ico')
 
 
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    # You must pull the real user object from the database for the hash checks to work
-    user = User.query.get(session['user_id'])
-
-    if request.method == 'POST':
-        action = request.form.get('action')
-
-        # Action 1: Security Override (Change Password)
-        if action == 'change_password':
-            old_pass = request.form.get('old_password')
-            new_pass = request.form.get('new_password')
-
-            # --- REAL DATABASE LOGIC ---
-            if check_password_hash(user.password, old_pass):
-                user.password = generate_password_hash(new_pass)
-                db.session.commit()
-                flash('SYSTEM: SECURITY CREDENTIALS UPDATED.', 'success')
-            else:
-                flash('SYS.ERR: OLD CREDENTIALS INVALID.', 'error')
-
-            return redirect(url_for('profile'))
-
-        # Action 2: Total Wipe (Delete Account)
-        elif action == 'delete_account':
-            auth_pass = request.form.get('delete_password')
-
-            # --- REAL DATABASE LOGIC ---
-            if check_password_hash(user.password, auth_pass):
-                db.session.delete(user)
-                db.session.commit()
-                session.clear()
-                flash('SYSTEM: USER DATA PURGED FROM MAINFRAME.', 'success')
-                return redirect(url_for('index'))
-            else:
-                flash('SYS.ERR: INVALID AUTHORIZATION. WIPE ABORTED.', 'error')
-                return redirect(url_for('profile'))
-
-    # THIS MUST BE OUTSIDE THE POST BLOCK
-    # This handles the initial GET request to actually render the page.
-    return render_template('profile.html', user=user)
-
-
-# --- SYSTEM LOGIN ---
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # Search the database for the user
-        user = User.query.filter_by(username=username).first()
-
-        # Verify user exists AND the passkey matches the hash
-        if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
-            session['username'] = user.username
-            return redirect(url_for('tools'))  # Route them to the main app
-        else:
-            flash('ACCESS DENIED: Invalid ID or Passkey', 'error')
-            return redirect(url_for('login'))
-
-    return render_template('login.html')
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-
-# --- INITIALIZE PROFILE (REGISTER) ---
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-
-        # Validation checks
-        if password != confirm_password:
-            flash('ERROR: Passkeys do not match.', 'error')
-            return redirect(url_for('register'))
-
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash('ERROR: User ID already active.', 'error')
-            return redirect(url_for('register'))
-
-        # Encrypt the passkey and save to database
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash('SYSTEM: Profile Generated. Please Authenticate.', 'success')
-        return redirect(url_for('login'))
-
-    return render_template('register.html')
-
-
 # --- SECURE TOOLS MODULE (Placeholder) ---
 @app.route('/tools')
 def tools():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    # This tells Flask to load your Nothing-themed dashboard instead of the raw text
     return render_template('tools.html')
+    # This tells Flask to load your Nothing-themed dashboard instead of the raw text
+
 
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     if request.method == 'POST':
         file = request.files.get('dataset')
@@ -239,8 +126,6 @@ def upload():
 
 @app.route('/ols', methods=['GET', 'POST'])
 def ols():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     columns = session.get('active_columns', [])
     ols_plot_html = None  # Initialize for the template
@@ -317,8 +202,6 @@ def ols():
 # Add this new route near your /load_vault route
 @app.route('/vault')
 def vault():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     # Path to your vault folder
     vault_dir = os.path.join('static', 'vault')
@@ -335,9 +218,6 @@ def vault():
 
 @app.route('/load_vault/<dataset_name>')
 def load_vault(dataset_name):
-    # Security Check
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     try:
         # 1. Locate the file in your static/vault directory
@@ -371,9 +251,6 @@ def load_vault(dataset_name):
 
 @app.route('/visual', methods=['GET', 'POST'])
 def visual():
-    # Security Check
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     columns = session.get('active_columns', [])
 
@@ -444,8 +321,6 @@ def visual():
 # Update your existing /protocol route to look like this:
 @app.route('/protocol')
 def protocol():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     columns = session.get('active_columns', [])
     if not columns:
@@ -554,8 +429,6 @@ def protocol():
 
 @app.route('/protocol_step_1', methods=['POST'])
 def protocol_step_1():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     y_var = request.form.get('y_var')
     x_vars = request.form.getlist('x_vars')
@@ -614,8 +487,6 @@ def protocol_step_1():
 
 @app.route('/protocol_step_2', methods=['POST'])
 def protocol_step_2():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     # Advance the State Machine to Gate 03
     session['protocol_stage'] = 3
@@ -625,8 +496,6 @@ def protocol_step_2():
 
 @app.route('/protocol_step_3', methods=['POST'])
 def protocol_step_3():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     # Advance to the Final Evaluation Stage
     session['protocol_stage'] = 4
@@ -645,8 +514,6 @@ def protocol_reset():
 
 @app.route('/timeseries', methods=['GET', 'POST'])
 def timeseries():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     columns = session.get('active_columns', [])
     if not columns:
@@ -732,8 +599,6 @@ def timeseries():
 
 @app.route('/report')
 def report():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     # Retrieve the last calculated results from session
     # (Ensure your /ols route saves 'results' to the session before redirecting)
@@ -744,6 +609,25 @@ def report():
         return redirect(url_for('ols'))
 
     return render_template('report.html', results=results)
+
+
+@app.route('/purge')
+def purge():
+    """Ejects the active dataset but retains the Ghost ID."""
+    # 1. Rescue the Ghost ID before the wipe
+    saved_id = session.get('user_id')
+    saved_name = session.get('username')
+
+    # 2. Nuke the memory (clears datasets, math calculations, protocol stages)
+    session.clear()
+
+    # 3. Restore the Ghost ID
+    if saved_id and saved_name:
+        session['user_id'] = saved_id
+        session['username'] = saved_name
+
+    flash('SYSTEM: ACTIVE DATASET EJECTED. SELECT ANOTHER ONE', 'success')
+    return redirect(url_for('tools'))
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
