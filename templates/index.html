@@ -74,11 +74,10 @@
             STATUS: SYSTEM ONLINE
         </div>
 
-        <!-- THE NEW WELCOME SEQUENCE -->
         {% if session.get('username') %}
-        <div class="mb-4">
-            <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest text-centre">
-                > GUEST SESSION INITIALIZED: {{ session['username'] }} <span class="animate-pulse">_</span>
+        <div class="mb-4 text-center px-4 w-full">
+            <span class="font-dot text-xl md:text-2xl text-n-red tracking-widest break-words">
+                > GUEST SESSION INITIALIZED:<br class="sm:hidden"> {{ session['username'] }} <span class="animate-pulse">_</span>
             </span>
         </div>
         {% endif %}
