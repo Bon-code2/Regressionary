@@ -10,4 +10,4 @@ statsmodels
 plotly
 gunicorn
 openpyxl
-kaleido==0.1.0
+
