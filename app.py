@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
-import base64
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
@@ -432,24 +431,6 @@ def visual():
 
             # Convert the interactive plot to HTML to inject into the template
             plot_html = pio.to_html(fig, full_html=False, config={'displayModeBar': False})
-
-            # --- THE DISK-WRITE FIX ---
-            img_bytes = fig.to_image(format="png")
-            graph_base64 = base64.b64encode(img_bytes).decode('utf-8')
-
-            # Save the giant image string to a temporary text file on the server
-            cache_filename = f"user_{session['user_id']}_vis_cache.txt"
-            cache_path = os.path.join(app.config['UPLOAD_FOLDER'], cache_filename)
-
-            with open(cache_path, "w") as f:
-                f.write(graph_base64)
-
-            # Store only lightweight text in the session cookie to prevent crashing
-            session['visual_results'] = {
-                'y': selected_y,
-                'x': selected_x,
-                'cache_file': cache_filename
-            }
             # ---------------------------
 
         except Exception as e:
@@ -459,32 +440,6 @@ def visual():
     return render_template('visual.html', columns=columns, plot_html=plot_html, current_x=selected_x,
                            current_y=selected_y)
 
-
-@app.route('/visual_report')
-def visual_report():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    results = session.get('visual_results')
-    if not results:
-        flash('SYS.ERR: NO VISUAL DATA CACHED. RENDER A GRAPH FIRST.', 'error')
-        return redirect(url_for('visual'))
-
-    # --- RETRIEVE IMAGE FROM DISK ---
-    cache_path = os.path.join(app.config['UPLOAD_FOLDER'], results['cache_file'])
-
-    try:
-        with open(cache_path, "r") as f:
-            graph_base64 = f.read()
-
-        # Temporarily inject the image string back into the dictionary for the template
-        results['graph_img'] = graph_base64
-
-    except FileNotFoundError:
-        flash('SYS.ERR: IMAGE CACHE CORRUPTED OR DELETED.', 'error')
-        return redirect(url_for('visual'))
-
-    return render_template('visual_report.html', results=results)
 
 # Update your existing /protocol route to look like this:
 @app.route('/protocol')
