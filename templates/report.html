@@ -67,30 +67,50 @@
                         <th class="p-2">P-Value</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for var, coef in results.coefficients.items() %}
-                    <tr>
-                        <td class="p-2 font-bold">{{ var }}</td>
-                        <td class="p-2">{{ coef }}</td>
-                        <td class="p-2">{{ results.std_errors[var] }}</td>
-                        <td class="p-2 {% if results.p_values[var] < 0.05 %}text-red-600 font-bold{% endif %}">
-                            {{ results.p_values[var] }}
+                <tbody>
+                {% for var, coef in results.coefficients.items() %}
+                {% set pval = results.p_values[var] %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-3 text-sm">{{ var }}</td>
+                        <td class="p-3 text-sm font-mono">{{ coef }}</td>
+                        <td class="p-3 text-sm font-mono">{{ results.std_errors[var] }}</td>
+                        <td class="p-3 text-sm font-mono text-n-red">
+                            {{ pval }}
+                            <span class="font-bold">
+                                {% if pval < 0.01 %}***
+                                {% elif pval < 0.05 %}**
+                                {% elif pval < 0.1 %}*
+                                {% endif %}
+                            </span>
                         </td>
                     </tr>
-                    {% endfor %}
+                {% endfor %}
                 </tbody>
             </table>
+            <div class="mt-2 text-right text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+            Significance Levels: *** p<0.01 &nbsp; ** p<0.05 &nbsp; * p<0.1
+            </div>
         </section>
 
-        <!-- Metrics Grid -->
-        <div class="grid grid-cols-2 gap-4 mt-10 border-t border-black pt-6">
-            <div class="bg-gray-50 p-4 border border-gray-200">
-                <p class="text-[10px] font-mono uppercase text-gray-500">R-Squared</p>
-                <p class="text-2xl font-['DotGothic16']">{{ results.r_squared }}</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            <div class="border border-gray-200 p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">R-Squared</div>
+                <div class="text-xl font-mono">{{ results.r_squared }}</div>
             </div>
-            <div class="bg-gray-50 p-4 border border-gray-200">
-                <p class="text-[10px] font-mono uppercase text-gray-500">Observations</p>
-                <p class="text-2xl font-['DotGothic16']">{{ results.observations }}</p>
+
+            <div class="border border-gray-200 p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Adj. R-Squared</div>
+                <div class="text-xl font-mono">{{ results.adj_r_squared }}</div>
+            </div>
+
+            <div class="border border-gray-200 p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Prob (F-Stat)</div>
+                <div class="text-xl font-mono">{{ results.f_stat_p }}</div>
+            </div>
+
+            <div class="border border-gray-200 p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Observations</div>
+                <div class="text-xl font-mono">{{ results.observations }}</div>
             </div>
         </div>
 
