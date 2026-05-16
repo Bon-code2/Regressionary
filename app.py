@@ -70,7 +70,10 @@ def serve_favicon():
 
 @app.route('/robots.txt')
 def serve_robots():
-    return send_from_directory('static', 'robots.txt', mimetype='text/plain')
+    """Hardcoded robots.txt to bypass file serving issues."""
+    robot_text = "User-agent: *\nAllow: /\nSitemap: https://regressionary.onrender.com/sitemap.xml"
+    return robot_text, 200, {'Content-Type': 'text/plain'}
+
 
 @app.route('/sitemap.xml')
 def serve_sitemap():
